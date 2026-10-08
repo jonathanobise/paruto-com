@@ -1,0 +1,25 @@
+# Design notes
+
+Apple's Human Interface Guidelines are the design authority for this page, translated for the web and layered over the Paruto brand (brand.paruto.com). The guidance was read from developer.apple.com in October 2026. No Apple fonts, symbols or trademarks are used.
+
+| HIG area | Rule | How it's applied |
+| --- | --- | --- |
+| Materials: Liquid Glass | Glass is for controls and navigation that float above content. Never use it in the content layer; use it sparingly. Use the *regular* variant for text-heavy bars and the *clear* variant over rich media, with a 35% dimming layer. | `.glass` (regular) is used only on the nav bar, the mobile menu, the rail paddles and the hero's secondary button. `.glass-clear` is used on buttons over product imagery. Tiles, cards, badges and the contact card are standard surfaces. Glass has a specular rim and a pointer-tracked highlight. |
+| Materials: scroll edge effect | Blur and fade content as it passes under bars. | `.edge`: a masked blur strip under the nav, shown once the page scrolls. |
+| Branding | Apply the accent colour judiciously, for primary actions and status. Move brand colour into the content layer. Let branding defer to content. Don't repeat the logo. | Gold is the tint and appears only on interactive elements (`.btn--tint`, `.link`), the italic display emphasis and the brand mark. Eyebrows and labels are neutral. The logo appears in the nav and footer, and the symbol only where it tells the story (hero, The Mark). |
+| Typography | Avoid light weights. Minimise typefaces. Keep hierarchy. Support text scaling. | Body text is Barlow 400 at 17px (`--t-body`). The type ladder (`--t-*`) is in rem so browser zoom and text size settings work. The minimum size is 12px. The brand's three faces are unchanged. |
+| Color / Dark Mode | Respect the system appearance and avoid an app-only setting. Soften white backgrounds. Meet contrast in every appearance. | Defaults to the system setting ("Auto"). The nav toggle and the footer segmented control (Auto · Light · Dark) override it, and the choice is remembered. Light mode uses brand off-white `#F5F3EF` with white elevated surfaces. Gold is darkened for text (`#7E5A10`, 5.6:1). Semantic tokens are redefined per appearance in `styles.css`. Media cards stay dark in both. The switch uses a circular View Transition from the pressed control, and a plain cut under Reduce Motion. |
+| Layout | Order by importance, group related content, differentiate controls from content, respect safe areas, and adapt to size classes rather than devices. | 8-pt spacing grid (`--s*`), concentric radii (inner = outer − padding), `env(safe-area-inset-*)`, breakpoints at 1000px and 700px. |
+| Motion | Purposeful, brief and cancellable. Avoid sustained oscillation around 0.2 Hz. Make motion optional. | Spring easing (`--spring`) for controls. Reveals take 0.8s. Ambient loops pause off-screen and when the tab is hidden. The nav minimises on scroll-down and restores on scroll-up. Ring and aurora periods avoid ~5s. |
+| Accessibility | Reduce Motion, Reduce Transparency, Increase Contrast, 44-pt targets, VoiceOver, keyboard. | All three preference media queries are handled (Reduce Motion becomes fades). Every target is ≥ 44px. The carousel has a page control, arrow keys and distinct labels. A skip link is provided. Visible focus rings. |
+| Writing | Clear, action-oriented, consistent capitalisation. | Buttons are verbs. Repeated "Learn more" buttons carry product-specific accessible names. |
+
+## Signature moments
+
+| Moment | Notes |
+| --- | --- |
+| 3D mark (`hero-gl.js`) | The brand symbol is extruded with a deep bevel and lit by a studio environment: polished gold in dark mode, black lacquer with a warm rim light in light mode. On load it swings in and a highlight glides across. It tilts toward the pointer. It renders only while the hero is visible and the tab is active. With Reduce Motion it shows one still frame. |
+| Fly-through | The hero is pinned for 140vh of scroll. The copy leaves first, the mark squares up and moves to the centre, and the camera flies through the P's counter. A bloom of light marks the pass, and the manifesto rises out of it. The motion is fully scroll-linked, so the visitor controls it (HIG: motion follows the person's input). |
+| Ventures ticker | Two rows of Media / Music / Capital / Technology drift in opposite directions. Scroll speed pushes and skews them, and scrolling up reverses them. It's decorative (`aria-hidden`), static under Reduce Motion, and paused off-screen. |
+| Company chapters | On wide screens with motion allowed, Companies pins for about 3 screens of scroll. Each company takes the stage in turn: the copy staggers in, its visual slides in, and the Capital chart redraws. A rolling italic numeral and a progress index track position, and each index entry is a button that jumps to its chapter. Tabbing into a hidden chapter's link scrolls it on stage. Phones and Reduce Motion get the bento grid from the same markup. |
+| Carousel depth | Product cards scale back and dim as they leave the leading edge, which keeps attention on the focused product. |

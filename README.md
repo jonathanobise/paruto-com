@@ -4,8 +4,11 @@ The group landing page for Paruto: Media, Music, Capital and Technology. Static 
 
 ```
 index.html     the page (all copy lives here)
+DESIGN.md      how Apple HIG guidance is applied
 styles.css     design tokens at the top, then sections in page order
 app.js         progressive enhancement: nav, scroll effects, reveals, product rail
+hero-gl.js     the 3D Paruto mark (three.js) and the scroll flight through it; SVG fallback if unavailable
+vendor/three/  three.js r186 + two addons, vendored (MIT, see vendor/three/LICENSE); mapped by the importmap in index.html
 assets/logos/  copied from paruto-brand (gold/white lockups and the symbol)
 assets/icons/  favicons, app icons, og-image (copied from paruto-brand)
 assets/products/  product screenshots (copied from paruto-apps)
