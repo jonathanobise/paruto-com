@@ -386,7 +386,6 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
 /* ---------- footer ---------- */
 .footer{border-top:1px solid var(--separator);padding:clamp(56px,9vh,96px) var(--gut) max(32px,env(safe-area-inset-bottom));max-width:calc(var(--max) + 2 * var(--gut));margin:0 auto}
 .footer__top{display:grid;grid-template-columns:1.1fr 1.4fr;gap:var(--s8);align-items:start}
-.footer__logo{width:min(360px,100%);height:auto}
 .footer__cols{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s4)}
 .footer__cols h3{font-family:var(--cond);font-weight:500;font-size:var(--t-caption);letter-spacing:.3em;text-transform:uppercase;color:var(--label-3);margin-bottom:var(--s1)}
 .footer__cols a,.footer__cols span{display:flex;align-items:center;min-height:40px;color:var(--label-2);font-size:var(--t-subhead);transition:color .3s;width:max-content;max-width:100%}
@@ -543,9 +542,9 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
   transition:opacity .6s var(--ease-out),transform .9s var(--spring),border-color .5s}
 .chapters-on .bento>.tile.is-past{transform:translateY(-56px) scale(.96)}
 .chapters-on .bento>.tile.is-active{opacity:1;transform:none;pointer-events:auto}
-.chapters-on .tile__copy{flex:0 0 46%;justify-content:center}
+.chapters-on .tile__copy{flex:0 0 50%;justify-content:center}
 .chapters-on .tile__lockup,.chapters-on .tile__copy>.eyebrow{margin-bottom:var(--s4);padding-bottom:0}
-.chapters-on .tile__title{font-size:clamp(2.6rem,4.4vw,4.6rem)}
+.chapters-on .tile__title{font-size:clamp(2.4rem,3.9vw,4.2rem)}
 .chapters-on .tile__copy p{font-size:var(--t-lede)}
 /* copy and visual arrive in a short stagger */
 .chapters-on .tile__copy>*{opacity:0;transform:translateY(18px);transition:opacity .5s var(--ease-out),transform .7s var(--spring)}
@@ -570,3 +569,37 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
 .chapters__big span{display:block;background:var(--tint-grad-text);-webkit-background-clip:text;background-clip:text;color:transparent;transition:transform .7s var(--spring)}
 .chapters__big .out{transform:translateY(-100%)}
 .chapters__big .in{transform:translateY(100%)}
+
+/* ---------- footer brand line + giant wordmark ---------- */
+.footer__tagline{font-family:var(--cond);font-weight:700;text-transform:uppercase;letter-spacing:.02em;line-height:.95;font-size:clamp(2.2rem,3.6vw,3.2rem)}
+.footer__tagline em{font-size:1.08em}
+/* Full-bleed PARUTO logotype (brand outlines, never retyped), fading into the footer line like apps.paruto.com.
+   A gold light follows the pointer across the letters; on touch screens it sweeps once as the mark arrives. */
+.bigmark{width:100vw;margin:clamp(56px,9vw,120px) 0 calc(-1 * clamp(4px,.6vw,10px)) calc(50% - 50vw);padding:0 var(--gut);color:var(--label);user-select:none}
+.bigmark svg{display:block;width:100%;max-width:1680px;height:auto;margin:0 auto;overflow:visible}
+.bm-l1{stop-color:#F5D68A}.bm-l2{stop-color:#C9952A}
+:root[data-theme="light"] .bm-l1{stop-color:#A97A1A}
+:root[data-theme="light"] .bm-l2{stop-color:#7E5A10}
+.bigmark__light{opacity:0;transition:opacity .7s var(--ease-out)}
+.bigmark.is-lit .bigmark__light{opacity:1}
+.js-ready .bigmark.reveal{transform:translateY(28%);transition:opacity 1.2s var(--ease-out),transform 1.4s var(--spring)}
+.js-ready .bigmark.reveal.in{transform:none}
+
+/* ---------- back to top: a floating Liquid Glass control with a scroll-progress ring ---------- */
+.totop{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));z-index:45;width:52px;height:52px;border-radius:50%;
+  display:grid;place-items:center;color:var(--label);opacity:0;visibility:hidden;transform:translateY(16px) scale(.85);
+  transition:opacity .3s,transform .6s var(--spring),visibility 0s .3s}
+.totop.is-on{opacity:1;visibility:visible;transform:none;transition:opacity .3s,transform .6s var(--spring),visibility 0s}
+.totop.is-on:hover{transform:scale(1.07)}
+.totop.is-on:active{transform:scale(.93);transition-duration:var(--dur-press)}
+.totop__arrow{position:relative;z-index:2;width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform var(--dur-ui) var(--spring)}
+.totop:hover .totop__arrow{transform:translateY(-2px)}
+.totop__ring{position:absolute;inset:0;z-index:2;width:100%;height:100%;transform:rotate(-90deg);pointer-events:none}
+.totop__ring circle{fill:none;stroke:var(--tint);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--prog,0))}
+@media (max-width:700px){.totop{width:48px;height:48px}}
+@media (prefers-reduced-motion:reduce){
+  .js-ready .bigmark.reveal{transform:none}
+  .bigmark__light{display:none}
+  .totop,.totop.is-on{transform:none!important;transition:opacity .2s,visibility 0s}
+}
+@media (max-width:700px){.footer{padding-bottom:max(88px,calc(72px + env(safe-area-inset-bottom)))}}

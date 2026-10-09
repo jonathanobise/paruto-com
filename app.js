@@ -340,5 +340,63 @@
   const pd = document.getElementById('pd');
   if (stroke && pd.getTotalLength) stroke.style.setProperty('--len', Math.ceil(pd.getTotalLength()));
 
+  /* ---- back to top: appears once past the hero; the ring shows how far down the page you are ---- */
+  const totop = $('#totop');
+  if (totop) {
+    let topTick = false;
+    const syncTop = () => {
+      topTick = false;
+      const max = document.documentElement.scrollHeight - innerHeight;
+      totop.style.setProperty('--prog', max > 0 ? (scrollY / max).toFixed(4) : 0);
+      totop.classList.toggle('is-on', scrollY > innerHeight * 1.6 && menu.hidden);
+    };
+    addEventListener('scroll', () => { if (!topTick) { topTick = true; requestAnimationFrame(syncTop); } }, { passive: true });
+    addEventListener('resize', syncTop);
+    syncTop();
+    totop.addEventListener('click', () => {
+      scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      $('.nav__brand').focus({ preventScroll: true });   // keyboard focus returns to the top of the page too
+    });
+  }
+
+  /* ---- giant wordmark: a gold light follows the pointer; touch screens get one slow sweep ---- */
+  const bigmark = $('.bigmark');
+  if (bigmark && !reduce) {
+    const svg = $('svg', bigmark);
+    const light = $('#bm-light');
+    const place = (x, y) => { light.setAttribute('cx', x.toFixed(1)); light.setAttribute('cy', y.toFixed(1)); };
+    const toSvg = (cx, cy) => {
+      const m = svg.getScreenCTM();
+      if (!m) return null;
+      const pt = new DOMPoint(cx, cy).matrixTransform(m.inverse());
+      return pt;
+    };
+    if (finePointer) {
+      const footer = $('.footer');
+      footer.addEventListener('pointermove', e => {
+        const pt = toSvg(e.clientX, e.clientY);
+        if (!pt) return;
+        place(pt.x, pt.y);
+        bigmark.classList.add('is-lit');
+      });
+      footer.addEventListener('pointerleave', () => bigmark.classList.remove('is-lit'));
+    } else {
+      let swept = false;
+      new IntersectionObserver(([en], obs) => {
+        if (!en.isIntersecting || swept) return;
+        swept = true; obs.disconnect();
+        const t0 = performance.now(), dur = 3200;
+        bigmark.classList.add('is-lit');
+        const step = now => {
+          const t = Math.min((now - t0) / dur, 1);
+          const e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+          place(420 + e * 1400, 120);
+          if (t < 1) requestAnimationFrame(step); else bigmark.classList.remove('is-lit');
+        };
+        setTimeout(() => requestAnimationFrame(step), 500);
+      }, { threshold: .6 }).observe(bigmark);
+    }
+  }
+
   $('#year').textContent = new Date().getFullYear();
 })();

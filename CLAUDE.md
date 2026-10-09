@@ -6,7 +6,7 @@ Static single page. See README.md for layout, preview and deploy.
 - Light mode follows the brand's light-section rule: black logos on off-white (never the gold logo on light). Every logo `<img>` is a pair, `.only-dark` (gold or white) and `.only-light` (black). Inline symbol paths use `class="pd"` so their fill follows `--mark-fill`. Media surfaces (product cards) carry `.on-dark` to stay dark in both themes. New colours go in both token blocks at the top of `styles.css`.
 - Logos in `assets/logos/` are copies of the brand build output. Never hand-edit them; regenerate them in paruto-brand and copy them over.
 - Product cards mirror ~/Projects/paruto-apps/apps.json (name, tagline, status, links). Update both when a product ships.
-- Brand facts: tagline "Think Possibilities"; Paruto Media ("We Amplify Impact", parutomedia.com), Paruto Music (parutomusic.com), Paruto Capital (parutocapital.com); contact hello@paruto.com. Don't invent facts, stats or taglines. Ask instead.
+- Brand facts: tagline "Think Possibilities"; Paruto Media ("We Amplify Impact", parutomedia.com), Paruto Music (parutomusic.com; recording studio and record label, "We Redefine Music" from its #WeRedefineMusic), Paruto Capital (parutocapital.com; trading education, "We teach mastery, not hype" from its own site — never add performance or profit claims); contact hello@paruto.com. Don't invent facts, stats or taglines. Ask instead.
 - Apple's HIG is the design authority; see DESIGN.md for how each guideline maps to code. In short:
   - Liquid Glass (`.glass`, `.glass-clear`) goes only on controls, never on content.
   - Gold is the tint and means "interactive". Eyebrows and labels stay neutral.
