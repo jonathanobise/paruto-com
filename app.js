@@ -301,7 +301,8 @@
       }));
       setTimeout(() => { if (old.isConnected) old.remove(); if (big.lastElementChild === next) next.style.cssText = ''; }, 750);
     };
-    const wide = matchMedia('(min-width: 1001px)');
+    // regular width AND regular height; short windows (compact height) get the grid
+    const wide = matchMedia('(min-width: 1001px) and (min-height: 700px)');
     let on = false, active = -1;
     const span = () => chapters.offsetHeight - innerHeight;
     const topOf = i => chapters.getBoundingClientRect().top + scrollY + span() * (i + .08) / tiles.length;
@@ -318,9 +319,15 @@
       tiles.forEach((t, j) => { t.classList.toggle('is-active', j === i); t.classList.toggle('is-past', j < i); });
       idxBtns.forEach((b, j) => j === i ? b.setAttribute('aria-current', 'true') : b.removeAttribute('aria-current'));
     };
+    // safety net: if any chapter's content can't fit its card at this size, use the grid instead
+    const fits = () => tiles.every(t => {
+      const copy = t.querySelector('.tile__copy');
+      return copy.scrollHeight <= t.clientHeight + 1;
+    });
     const setMode = () => {
       on = wide.matches && !reduce;
       root.classList.toggle('chapters-on', on);
+      if (on && !fits()) { on = false; root.classList.remove('chapters-on'); }
       active = -1;
       if (!on) tiles.forEach(t => t.classList.remove('is-active', 'is-past'));
       sync();
@@ -330,7 +337,9 @@
     tiles.forEach((t, i) => t.addEventListener('focusin', () => { if (on && i !== active) scrollTo({ top: topOf(i), behavior: 'auto' }); }));
     let chTick = false;
     addEventListener('scroll', () => { if (!chTick) { chTick = true; requestAnimationFrame(() => { chTick = false; sync(); }); } }, { passive: true });
-    addEventListener('resize', sync);
+    let fitTimer;
+    addEventListener('resize', () => { sync(); clearTimeout(fitTimer); fitTimer = setTimeout(setMode, 200); });
+    document.fonts?.ready.then(setMode);   // re-measure once the brand fonts have loaded
     wide.addEventListener('change', setMode);
     setMode();
   }

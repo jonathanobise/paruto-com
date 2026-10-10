@@ -653,3 +653,14 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
 @media (max-width:700px){.tile--kids{flex-direction:column}.viz--play{min-height:200px;padding-top:0}}
 .chapters-on .bubble svg{width:40px;height:40px;padding:34px}
 .chapters-on .viz--play{gap:clamp(20px,3vw,44px)}
+
+/* ---------- chapter fit: size to the window's height as well as its width ---------- */
+.chapters-on .bento{height:min(76vh,760px)}
+.chapters-on .tile__copy{flex:0 0 54%}
+.chapters-on .tile__title{font-size:clamp(2.1rem,min(3.4vw,5.6vh),3.9rem)}
+.chapters-on .tile--tech .tile__title{font-size:clamp(2rem,min(3vw,5vh),3.3rem)}
+.chapters-on .tile__copy p{font-size:var(--t-body)}
+.chapters-on .tile__lockup,.chapters-on .tile__copy>.eyebrow{margin-bottom:clamp(12px,3vh,32px)}
+.chapters-on .bento>.tile{--pad:clamp(32px,min(4vw,6vh),64px)}
+.chapters-on .bubble svg{width:clamp(26px,2.6vw,40px);height:clamp(26px,2.6vw,40px);padding:clamp(18px,2.2vw,34px)}
+.chapters-on .viz--play{gap:clamp(10px,2vw,44px);padding:var(--pad) var(--pad) var(--pad) 0}
