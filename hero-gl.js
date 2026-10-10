@@ -2,9 +2,8 @@
    Progressive: if modules, WebGL or the vendor files are unavailable, the SVG mark in .hero__stage stays.
    Dark appearance: polished gold. Light appearance: black lacquer with a gold rim light
    (the brand never puts the gold mark on a light background). */
-import * as THREE from 'three';
-import { SVGLoader } from 'three/addons/SVGLoader.js';
-import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
+// three.js is imported on demand in start() once the page is idle, so it never competes with the first paint.
+let THREE, RoomEnvironment;
 
 const root = document.documentElement;
 const hero = document.querySelector('.hero');
@@ -13,9 +12,27 @@ const stage = document.querySelector('.hero__stage');
 const canvas = document.querySelector('.hero__gl');
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const saveData = navigator.connection && navigator.connection.saveData;
+const lowMemory = navigator.deviceMemory && navigator.deviceMemory <= 2;   // very low-end phones keep the SVG mark
+const small = innerWidth < 700;
 
-// Same geometry as the brand symbol (365 × 347 units): one continuous band, P inside D.
-const PD = 'M75 259V77.5H190.5A96 96 0 0 1 190.5 269.5H168.5L91 347H0V0H190.5A173.5 173.5 0 0 1 190.5 347H147L184 310H190.5A136.5 136.5 0 0 0 190.5 37H37V310H79L153.5 235.5H190.5A62 62 0 0 0 190.5 111.5H111V223Z';
+// The brand symbol (365 × 347 units), built directly rather than parsed from SVG: straight runs plus four
+// half-circles, all centred on (190.5, 173.5). Same path as #pd in index.html:
+// M75 259V77.5H190.5A96 96 0 0 1 190.5 269.5H168.5L91 347H0V0H190.5A173.5 173.5 0 0 1 190.5 347H147L184 310
+// H190.5A136.5 136.5 0 0 0 190.5 37H37V310H79L153.5 235.5H190.5A62 62 0 0 0 190.5 111.5H111V223Z
+function symbolShape() {
+  const CX = 190.5, CY = 173.5, UP = -Math.PI / 2, DOWN = Math.PI / 2;  // y-down, as in the SVG
+  const s = new THREE.Shape();
+  s.moveTo(75, 259); s.lineTo(75, 77.5); s.lineTo(CX, 77.5);
+  s.absarc(CX, CY, 96, UP, DOWN, false);                 // P bowl, outer edge
+  s.lineTo(168.5, 269.5); s.lineTo(91, 347); s.lineTo(0, 347); s.lineTo(0, 0); s.lineTo(CX, 0);
+  s.absarc(CX, CY, 173.5, UP, DOWN, false);              // D, outer edge
+  s.lineTo(147, 347); s.lineTo(184, 310); s.lineTo(CX, 310);
+  s.absarc(CX, CY, 136.5, DOWN, UP, true);               // D, inner edge
+  s.lineTo(37, 37); s.lineTo(37, 310); s.lineTo(79, 310); s.lineTo(153.5, 235.5); s.lineTo(CX, 235.5);
+  s.absarc(CX, CY, 62, DOWN, UP, true);                  // P bowl, inner edge
+  s.lineTo(111, 111.5); s.lineTo(111, 223); s.closePath();
+  return s;
+}
 
 const LOOKS = {
   dark:  { color: 0xE6B24E, metalness: 1, roughness: .14, clearcoat: .4, clearcoatRoughness: .12, env: 1.5, key: 2.6, rim: 3.2, rimColor: 0xF5D68A, exposure: 1.05 },
@@ -27,8 +44,13 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const smooth = (a, b, v) => { const t = clamp01((v - a) / (b - a)); return t * t * (3 - 2 * t); };
 const easeOut = t => 1 - Math.pow(1 - t, 4);
 
-if (canvas && stage && !saveData) {
-  try { init(); } catch (e) { /* keep the SVG fallback */ }
+// Build the scene once the page has painted and the browser is idle, so the 3D set-up never delays the text.
+if (canvas && stage && !saveData && !lowMemory) {
+  const start = () => Promise.all([import('three'), import('three/addons/RoomEnvironment.js')])
+    .then(([three, env]) => { THREE = three; RoomEnvironment = env.RoomEnvironment; init(); })
+    .catch(() => { /* keep the SVG fallback */ });
+  const idle = () => ('requestIdleCallback' in window ? requestIdleCallback(start, { timeout: 1200 }) : setTimeout(start, 200));
+  if (document.readyState === 'complete') idle(); else addEventListener('load', idle, { once: true });
 }
 
 function init() {
@@ -44,9 +66,8 @@ function init() {
   pmrem.dispose();
 
   // Extrude the symbol with a deep, soft bevel so edges catch the light.
-  const svg = new SVGLoader().parse(`<svg xmlns="http://www.w3.org/2000/svg"><path d="${PD}"/></svg>`);
-  const shapes = svg.paths.flatMap(p => SVGLoader.createShapes(p));
-  const geo = new THREE.ExtrudeGeometry(shapes, { depth: 44, bevelEnabled: true, bevelThickness: 9, bevelSize: 4.5, bevelSegments: 12, curveSegments: 72 });
+  const geo = new THREE.ExtrudeGeometry(symbolShape(), { depth: 44, bevelEnabled: true, bevelThickness: 9, bevelSize: 4.5,
+    bevelSegments: small ? 8 : 12, curveSegments: small ? 40 : 64 });
   geo.center();                                   // the P's counter sits almost exactly on the origin
   const mat = new THREE.MeshPhysicalMaterial();
   const mesh = new THREE.Mesh(geo, mat);

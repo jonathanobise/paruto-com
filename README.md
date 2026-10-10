@@ -7,6 +7,10 @@ index.html     the page (all copy lives here)
 DESIGN.md      how Apple HIG guidance is applied
 404.html       branded not-found page (GitHub Pages serves it for any missing path; absolute URLs only)
 robots.txt, sitemap.xml   search engine basics; update sitemap lastmod when content changes
+privacy.html   privacy notice (linked in the footer); update it whenever the site starts collecting or loading anything new
+ROLLBACK.md    how to undo a bad deploy
+assets/fonts/  self-hosted brand fonts (Latin woff2, SIL OFL licences included)
+assets/og/     1200×630 share image, rendered from the hero
 styles.css     design tokens at the top, then sections in page order
 app.js         progressive enhancement: nav, scroll effects, reveals, product rail
 hero-gl.js     the 3D Paruto mark (three.js) and the scroll flight through it; SVG fallback if unavailable

@@ -7,6 +7,14 @@
    · Motion is brief, spring-based, paused off-screen, and replaced by fades under Reduce Motion.
    Appearance: dark (default) and light. <html data-theme> is set before first paint by the inline script in
    index.html (saved choice, else the system setting). `.on-dark` keeps media surfaces dark in both themes. */
+/* Brand fonts, self-hosted (SIL OFL, see assets/fonts) — no render-blocking third-party request, no visitor IPs sent to Google. */
+@font-face{font-family:'Barlow';font-style:normal;font-weight:400;font-display:swap;src:url(/assets/fonts/barlow-400.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Barlow';font-style:normal;font-weight:500;font-display:swap;src:url(/assets/fonts/barlow-500.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:500;font-display:swap;src:url(/assets/fonts/barlow-condensed-500.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:600;font-display:swap;src:url(/assets/fonts/barlow-condensed-600.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:700;font-display:swap;src:url(/assets/fonts/barlow-condensed-700.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:400;font-display:swap;src:url(/assets/fonts/cormorant-garamond-400-italic.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:400;font-display:swap;src:url(/assets/fonts/cormorant-garamond-400.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
 :root,.on-dark{
   color-scheme:dark;
   /* tint (brand gold) */
@@ -17,7 +25,7 @@
   /* backgrounds — dark-only by brand rule (HIG: "in rare cases, consider using only a dark appearance") */
   --bg:#080808;--bg-2:#0E0E0E;--bg-3:#161616;--bg-elev:linear-gradient(165deg,#171717,#0c0c0c 72%);
   /* labels (HIG label / secondaryLabel / tertiaryLabel / quaternaryLabel) */
-  --label:#FFFFFF;--label-2:rgba(255,255,255,.74);--label-3:rgba(255,255,255,.55);--label-4:rgba(255,255,255,.2);
+  --label:#FFFFFF;--label-2:rgba(255,255,255,.74);--label-3:rgba(255,255,255,.55);--label-4:rgba(255,255,255,.2);--label-dim:rgba(255,255,255,.4);
   --paper:#F5F3EF;
   /* fills & separators */
   --fill:rgba(255,255,255,.08);--fill-2:rgba(255,255,255,.12);--fill-3:rgba(255,255,255,.16);
@@ -54,7 +62,7 @@
   --tint-text:#7E5A10;--focus:#7E5A10;--line-accent:#B8841E;--mark-fill:#0A0A0A;--mark-stroke:#0A0A0A;--sheen:0;
   --tint-grad-text:linear-gradient(100deg,#7E5A10 0%,#A97A1A 45%,#8C6414 100%);
   --bg:#F5F3EF;--bg-2:#EDEAE3;--bg-3:#FFFFFF;--bg-elev:linear-gradient(165deg,#FFFFFF,#FAF8F4 72%);
-  --label:#0A0A0A;--label-2:rgba(10,10,10,.74);--label-3:rgba(10,10,10,.62);--label-4:rgba(10,10,10,.18);
+  --label:#0A0A0A;--label-2:rgba(10,10,10,.74);--label-3:rgba(10,10,10,.62);--label-4:rgba(10,10,10,.18);--label-dim:rgba(10,10,10,.48);
   --paper:#1A1712;
   --fill:rgba(10,10,10,.05);--fill-2:rgba(10,10,10,.08);--fill-3:rgba(10,10,10,.12);
   --separator:rgba(10,10,10,.1);--separator-tint:rgba(184,132,30,.4);
@@ -215,9 +223,9 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:100;op
 @keyframes cue{0%{transform:translateY(0);opacity:1}70%{transform:translateY(14px);opacity:0}100%{opacity:0}}
 
 /* entrance — one short, staggered rise */
-.js-ready .hero__eyebrow,.js-ready .hero__think,.js-ready .hero__poss,.js-ready .hero__lede,.js-ready .hero__ctas{animation:rise 1s var(--ease-out) both}
-.js-ready .hero__eyebrow{animation-delay:.25s}.js-ready .hero__think{animation-delay:.33s}.js-ready .hero__poss{animation-delay:.41s}
-.js-ready .hero__lede{animation-delay:.53s}.js-ready .hero__ctas{animation-delay:.63s}
+/* the headline rises in; the lede and buttons paint immediately (the lede is the LCP element) */
+.js-ready .hero__eyebrow,.js-ready .hero__think,.js-ready .hero__poss{animation:rise .8s var(--ease-out) both}
+.js-ready .hero__eyebrow{animation-delay:.05s}.js-ready .hero__think{animation-delay:.12s}.js-ready .hero__poss{animation-delay:.19s}
 @keyframes rise{from{opacity:0;transform:translateY(24px)}}
 
 /* ---------- ticker: the four ventures, set huge, drifting with scroll velocity ---------- */
@@ -234,10 +242,10 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:100;op
 /* ---------- manifesto (words light up with scroll — tracks the gesture directly) ---------- */
 .manifesto{position:relative;max-width:var(--max);margin:-50vh auto 0;padding:var(--s10) var(--gut) 18vh;z-index:3}
 .manifesto__text{margin-top:var(--s3);font-family:var(--cond);font-weight:600;text-transform:uppercase;letter-spacing:.01em;line-height:1.08;font-size:clamp(2.1rem,5.6vw,4.9rem)}
-.manifesto__text .w{color:var(--label-4);transition:color .4s}
+.manifesto__text .w{color:var(--label-dim);transition:color .4s}
 .manifesto__text .w.on{color:var(--label)}
-.manifesto__text em{opacity:.22;transition:opacity .4s}
-.manifesto__text em.on{opacity:1}
+.manifesto__text em{transition:color .4s}
+.manifesto__text em:not(.on){background:none;color:var(--label-dim)}   /* grey like its neighbours until lit, then gold */
 
 /* ---------- sections ---------- */
 .section{max-width:var(--max);margin:0 auto;padding:clamp(80px,12vh,128px) var(--gut)}
@@ -453,7 +461,7 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
   .hero__grid{min-height:100svh}
   .ticker__track{transform:none!important}
   .manifesto{margin-top:0}
-  .manifesto__text .w{color:var(--label)}.manifesto__text em{opacity:1}
+  .manifesto__text .w{color:var(--label)}.manifesto__text em:not(.on){background:var(--tint-grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
   .js-ready .reveal{transform:none;transition:opacity .4s ease}
   .viz--stack img,.card__img,.card__phone,.appgrid,.btn,.iconbtn,.nav__bar,.nav__pill,.nav__brand,.nav__logo,.nav__symbol,.nav__cta{transition-property:opacity,background-color,color!important}
   .viz--eq b{transform:scaleY(var(--h,.6))}
@@ -610,3 +618,17 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
 .nav__ext svg,.menu__ext svg{width:10px;height:10px;margin-left:5px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:.7;transition:transform var(--dur-ui) var(--spring),opacity .3s}
 .menu__ext svg{width:14px;height:14px;margin-left:8px}
 .nav__ext:hover svg,.menu__ext:hover svg{transform:translate(2px,-2px);opacity:1}
+/* footer: four columns once Follow joins */
+.footer__cols{grid-template-columns:repeat(4,minmax(0,1fr))}
+.footer__handle{display:block;margin-top:4px;letter-spacing:.12em;text-transform:none;color:var(--label-3)}
+@media (max-width:700px){.footer__cols{grid-template-columns:1fr 1fr}}
+.footer__social{display:grid;grid-template-columns:repeat(2,max-content);column-gap:var(--s3)}
+.footer__privacy{display:inline-flex;align-items:center;min-height:44px;margin-left:var(--s2);color:var(--label-2);text-decoration:underline;text-underline-offset:3px}
+.footer__privacy:hover{color:var(--label)}
+/* 44pt minimum tap targets in the footer (HIG; checked at 360px wide) */
+.footer__cols a,.footer__cols span{min-height:44px}
+.footer__social a{min-width:44px}
+.seg button{min-height:44px}
+.footer__cols a,.footer__privacy{min-width:44px}
+.dots{gap:0}.dots button{width:44px}
+.scrollcue::before{content:"";position:absolute;inset:-10px -9px}   /* 44pt hit area around the small cue */
