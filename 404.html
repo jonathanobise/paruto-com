@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Page not found — Paruto</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#080808" id="theme-color">
+<meta name="color-scheme" content="dark light">
+<!-- GitHub Pages serves this file for any missing path, so every URL here is absolute. -->
+<link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500&family=Barlow+Condensed:wght@500;600;700&family=Cormorant+Garamond:ital,wght@1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<script>
+  // Same appearance logic as the homepage: saved choice, else the system setting.
+  (function () {
+    var d = document.documentElement, pref = null;
+    d.classList.remove('no-js');
+    try { pref = localStorage.getItem('paruto-theme'); } catch (e) {}
+    var theme = pref === 'light' || pref === 'dark' ? pref : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    d.setAttribute('data-theme', theme);
+    document.getElementById('theme-color').setAttribute('content', theme === 'light' ? '#F5F3EF' : '#080808');
+  })();
+</script>
+<style>
+  .nf{position:relative;min-height:100svh;display:grid;place-items:center;overflow:hidden;padding:var(--s12) var(--gut);text-align:center;isolation:isolate}
+  .nf .aurora{z-index:-1}
+  .nf__inner{display:flex;flex-direction:column;align-items:center;gap:var(--s3);max-width:40rem}
+  .nf__mark{width:72px;filter:drop-shadow(0 16px 40px rgba(201,149,42,.4))}
+  .nf__home{display:inline-flex;margin-bottom:var(--s2)}
+  .nf__ctas{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:var(--s2)}
+  .nf .lede{margin:0 auto}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gold" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="365" y2="347">
+      <stop offset="0" stop-color="#B8841E"/><stop offset=".42" stop-color="#F5D68A"/>
+      <stop offset=".7" stop-color="#D9A847"/><stop offset="1" stop-color="#C9952A"/>
+    </linearGradient>
+    <path id="pd" d="M75 259V77.5H190.5A96 96 0 0 1 190.5 269.5H168.5L91 347H0V0H190.5A173.5 173.5 0 0 1 190.5 347H147L184 310H190.5A136.5 136.5 0 0 0 190.5 37H37V310H79L153.5 235.5H190.5A62 62 0 0 0 190.5 111.5H111V223Z"/>
+  </defs>
+</svg>
+
+<main class="nf">
+  <div class="aurora" aria-hidden="true"><i></i><i></i></div>
+  <div class="nf__inner">
+    <a class="nf__home" href="/" aria-label="Paruto — home">
+      <svg class="nf__mark" viewBox="-24 -24 413 395" aria-hidden="true"><use class="pd" href="#pd" fill="url(#gold)"/></svg>
+    </a>
+    <p class="eyebrow">Error 404</p>
+    <h1 class="h2">This page <em>isn't&nbsp;here.</em></h1>
+    <p class="lede">The link may be old or mistyped. Everything Paruto does — media, music, capital and technology — starts from the homepage.</p>
+    <div class="nf__ctas">
+      <a class="btn btn--tint" href="/">Go to the homepage</a>
+      <a class="btn glass" href="mailto:hello@paruto.com">Email hello@paruto.com</a>
+    </div>
+  </div>
+</main>
+</body>
+</html>

@@ -5,6 +5,8 @@ The group landing page for Paruto: Media, Music, Capital and Technology. Static 
 ```
 index.html     the page (all copy lives here)
 DESIGN.md      how Apple HIG guidance is applied
+404.html       branded not-found page (GitHub Pages serves it for any missing path; absolute URLs only)
+robots.txt, sitemap.xml   search engine basics; update sitemap lastmod when content changes
 styles.css     design tokens at the top, then sections in page order
 app.js         progressive enhancement: nav, scroll effects, reveals, product rail
 hero-gl.js     the 3D Paruto mark (three.js) and the scroll flight through it; SVG fallback if unavailable
