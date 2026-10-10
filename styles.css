@@ -603,3 +603,6 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
   .totop,.totop.is-on{transform:none!important;transition:opacity .2s,visibility 0s}
 }
 @media (max-width:700px){.footer{padding-bottom:max(88px,calc(72px + env(safe-area-inset-bottom)))}}
+/* brand guide link under The Mark */
+.mark__more{display:flex;flex-wrap:wrap;align-items:center;gap:12px var(--s3);margin-top:var(--s5)}
+.mark__note{font-size:var(--t-footnote);color:var(--label-3)}
