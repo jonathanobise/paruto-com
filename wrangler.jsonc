@@ -15,5 +15,10 @@
     "not_found_handling": "404-page",
     "html_handling": "auto-trailing-slash"
   },
+  // Custom domains: Cloudflare creates the DNS records and certificates for these on deploy.
+  "routes": [
+    { "pattern": "paruto.com", "custom_domain": true },
+    { "pattern": "www.paruto.com", "custom_domain": true }
+  ],
   "workers_dev": true
 }
