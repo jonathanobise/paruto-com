@@ -4,8 +4,8 @@
    shaders and drawing every frame happen off the page's main thread and never block a tap or a scroll. Browsers that
    can't draw WebGL in a worker draw it here instead. This file reads the page (scroll, layout, pointer, appearance),
    sends that to the scene, and owns the page effects: the flash, the canvas fade and `gl-ready`. */
-// three.js is only loaded by hero-scene.js, on hardware graphics, once the page is idle, so it never competes with the first paint.
-import { openGL } from './hero-probe.js';
+// Nothing is imported up front: the worker, hero-probe.js and three.js (via hero-scene.js) only load once the page is
+// idle, and three.js only on hardware graphics, so none of it competes with the first paint.
 
 const root = document.documentElement;
 const hero = document.querySelector('.hero');
@@ -75,6 +75,7 @@ function inWorker() {
 
 async function onPage() {
   try {
+    const { openGL } = await import('./hero-probe.js');
     const got = openGL(canvas);
     if (!got.gl) return;                               // keep the SVG
     canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); root.classList.remove('gl-ready'); });
