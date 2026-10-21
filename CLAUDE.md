@@ -1,6 +1,17 @@
 # paruto.com landing page
 
-Static single page. See README.md for layout, preview and deploy.
+Static single page. See README.md for layout and preview, ROLLBACK.md for undoing a deploy.
+
+## Deploying
+Live at **https://paruto.com**, served by **Cloudflare**: the Worker `paruto-com` (config in `wrangler.jsonc`; `worker.js` only sends www.* to the apex), also at https://paruto-com.paruto.workers.dev (kept on). paruto.com and www.paruto.com are the Worker's custom domains, so Cloudflare manages their DNS records and certificates; the zone's MX and TXT records (Zoho mail) are separate and must stay. Everything in the folder is published except what `.assetsignore` lists, so add new repo or tooling files there. `_headers` sets the security and cache headers.
+- **Pushing doesn't deploy.** Deploy only committed code, from a clean checkout of `main`, because uncommitted work in this folder would otherwise go live:
+  `W=/tmp/paruto-com-deploy && git worktree add -q --detach $W main && (cd $W && npx -y wrangler@4.141.0 deploy) ; git worktree remove --force $W`
+  Check it with `curl -sI https://paruto.com/ | grep -i server` (`cloudflare`). Don't deploy or push without being asked.
+- GitHub Pages still builds `main` as a standby (`CNAME`, `.nojekyll`) until the user says to switch it off; ROLLBACK.md has the fallback steps. Once it's off, delete those two files and that ROLLBACK.md section.
+- Use `/usr/bin/git` (`/usr/local/bin/git` won't run on this Mac); `gh` is at `/opt/homebrew/bin/gh`.
+- Cloudflare is managed with wrangler here (the project has a `wrangler.jsonc`); DNS records with the `cf` CLI (`cf dns records delete` needs `--force` when run non-interactively, or it aborts while still exiting 0).
+
+## Rules
 
 - Brand rules come from ~/Projects/paruto-brand (brand.paruto.com): gold `#C9952A` on black, Barlow / Barlow Condensed / Cormorant Garamond. Dark is the default; light is opt-in via the nav toggle or the footer Auto/Light/Dark control, and is set before first paint by the inline script in `index.html`. Headlines are Barlow Condensed uppercase; the emphasis phrase is an `<em>`, which renders in italic gold serif.
 - Dark mode has three depths, Graphite, Midnight (default) and OLED, set as `data-depth` before first paint (pre-paint script in `index.html`, `404.html` and `privacy.html`; footer Depth control). Depth overrides live in the `[data-depth]` blocks in `styles.css`; new dark surfaces must read the `--bg*` tokens so every depth works.
