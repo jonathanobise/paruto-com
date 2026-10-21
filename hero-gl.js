@@ -2,7 +2,7 @@
    Progressive: if modules, WebGL or the vendor files are unavailable, the SVG mark in .hero__stage stays.
    Dark appearance: polished gold. Light appearance: black lacquer with a gold rim light
    (the brand never puts the gold mark on a light background). */
-// three.js is imported on demand in start() once the page is idle, so it never competes with the first paint.
+// three.js is imported on demand in start() once the page is idle (and only on hardware graphics), so it never competes with the first paint.
 let THREE, RoomEnvironment;
 
 const root = document.documentElement;
@@ -44,10 +44,44 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const smooth = (a, b, v) => { const t = clamp01((v - a) / (b - a)); return t * t * (3 - 2 * t); };
 const easeOut = t => 1 - Math.pow(1 - t, 4);
 
+// Only run the 3D scene on hardware graphics. A software renderer (SwiftShader, llvmpipe, GPU-less or locked-down
+// devices) takes seconds to compile the shaders and stalls the whole page, so those keep the flat SVG mark —
+// skipping three.js where it can't run smoothly. Checked before three.js is even downloaded.
+const SOFTWARE = /swiftshader|llvmpipe|softpipe|software|basic render/i;
+function probe(canvas) {   // shared by the worker test and the main-thread fallback
+  const opts = { failIfMajorPerformanceCaveat: true };
+  const gl = canvas.getContext('webgl2', opts) || canvas.getContext('webgl', opts);
+  if (!gl) return false;
+  const info = gl.getExtension('WEBGL_debug_renderer_info');
+  const name = info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
+  const lose = gl.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext();
+  return !SOFTWARE.test(name);
+}
+function mainThreadCheck() { try { return probe(document.createElement('canvas')); } catch (e) { return false; } }
+// The test runs in a worker on an OffscreenCanvas, because creating even a 1×1 context on a software renderer
+// blocks for hundreds of milliseconds. Browsers without OffscreenCanvas WebGL in workers fall back to the main thread.
+function hardwareGL() {
+  return new Promise(resolve => {
+    try {
+      if (!('OffscreenCanvas' in window) || !window.Worker) return resolve(mainThreadCheck());
+      const src = `const SOFTWARE=${SOFTWARE};${probe.toString()};
+        try { postMessage(probe(new OffscreenCanvas(1, 1))); } catch (e) { postMessage('unsupported'); }`;
+      const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
+      const w = new Worker(url);
+      let settled = false;
+      const done = v => { if (settled) return; settled = true; w.terminate(); URL.revokeObjectURL(url); resolve(v === 'unsupported' ? mainThreadCheck() : v === true); };
+      w.onmessage = e => done(e.data);
+      w.onerror = () => done('unsupported');
+      setTimeout(() => done(false), 3000);   // a device that can't answer in 3 s can't run the scene smoothly either
+    } catch (e) { resolve(mainThreadCheck()); }
+  });
+}
+
 // Build the scene once the page has painted and the browser is idle, so the 3D set-up never delays the text.
 if (canvas && stage && !saveData && !lowMemory) {
-  const start = () => Promise.all([import('three'), import('three/addons/RoomEnvironment.js')])
-    .then(([three, env]) => { THREE = three; RoomEnvironment = env.RoomEnvironment; return init(); })
+  // One tree-shaken bundle of just the three.js classes the hero uses (scripts/build-hero-three.mjs).
+  const start = () => hardwareGL().then(ok => ok && import('./vendor/three/hero-three.min.js')
+    .then(m => { THREE = m; RoomEnvironment = m.RoomEnvironment; return init(); }))
     .catch(() => { /* keep the SVG fallback */ });
   const idle = () => ('requestIdleCallback' in window ? requestIdleCallback(start, { timeout: 1200 }) : setTimeout(start, 200));
   if (document.readyState === 'complete') idle(); else addEventListener('load', idle, { once: true });
@@ -57,23 +91,27 @@ if (canvas && stage && !saveData && !lowMemory) {
 // asynchronously before the first frame, so building the scene never blocks a tap or a scroll.
 const pause = () => new Promise(r => setTimeout(r, 0));
 async function init() {
+  const step = n => performance.mark('3d:' + n);
+  step('start');
   let ready = false;                              // no frames until the scene is fully prepared
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance', failIfMajorPerformanceCaveat: true });
   renderer.setClearColor(0x000000, 0);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  step('renderer');
   await pause();
 
   const scene = new THREE.Scene();
   const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), .04).texture;
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), .04, .1, 100, { size: 128 }).texture;   // 128² is a quarter of the default work, same look at this roughness
   scene.environmentRotation.set(.45, Math.PI * .8, 0);   // put the studio's bright panels where the face can see them
   pmrem.dispose();
+  step('environment');
   await pause();
 
   // Extrude the symbol with a deep, soft bevel so edges catch the light.
   const geo = new THREE.ExtrudeGeometry(symbolShape(), { depth: 44, bevelEnabled: true, bevelThickness: 9, bevelSize: 4.5,
-    bevelSegments: small ? 8 : 12, curveSegments: small ? 40 : 64 });
+    bevelSegments: small ? 6 : 10, curveSegments: small ? 28 : 56 });
   geo.center();                                   // the P's counter sits almost exactly on the origin
   const mat = new THREE.MeshPhysicalMaterial();
   const mesh = new THREE.Mesh(geo, mat);
@@ -81,6 +119,7 @@ async function init() {
   const mark = new THREE.Group();
   mark.add(mesh);
   scene.add(mark);
+  step('geometry');
   await pause();
 
   const key = new THREE.DirectionalLight(0xfff1d6, 2.6);
@@ -187,6 +226,7 @@ async function init() {
   layout();
   await pause();
   if (renderer.compileAsync) { try { await renderer.compileAsync(scene, camera); } catch (e) { /* compile on first frame instead */ } }
+  step('compiled');
   ready = true;
   request();
 }
