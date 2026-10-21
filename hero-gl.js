@@ -1,8 +1,9 @@
 /* paruto.com — the Paruto mark in 3D, and the scroll flight through it.
    Progressive: if modules, WebGL or the vendor files are unavailable, the SVG mark in .hero__stage stays.
-   The scene (hero-scene.js) runs in a worker on an OffscreenCanvas (hero-worker.js), so building it, compiling its
-   shaders and drawing every frame happen off the page's main thread and never block a tap or a scroll. Browsers that
-   can't draw WebGL in a worker draw it here instead. This file reads the page (scroll, layout, pointer, appearance),
+   The scene (hero-scene.js) runs in a worker on its own OffscreenCanvas (hero-worker.js), so building it, compiling
+   its shaders and drawing every frame happen off the page's main thread and never block a tap or a scroll; each
+   finished frame arrives as an ImageBitmap and is shown on the page's canvas. Browsers that can't draw WebGL in a
+   worker draw it here instead. This file reads the page (scroll, layout, pointer, appearance),
    sends that to the scene, and owns the page effects: the flash, the canvas fade and `gl-ready`. */
 // Nothing is imported up front: the worker, hero-probe.js and three.js (via hero-scene.js) only load once the page is
 // idle, and three.js only on hardware graphics, so none of it competes with the first paint.
@@ -11,7 +12,7 @@ const root = document.documentElement;
 const hero = document.querySelector('.hero');
 const sticky = document.querySelector('.hero__sticky');
 const stage = document.querySelector('.hero__stage');
-let canvas = document.querySelector('.hero__gl');
+const canvas = document.querySelector('.hero__gl');
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const saveData = navigator.connection && navigator.connection.saveData;
 const lowMemory = navigator.deviceMemory && navigator.deviceMemory <= 2;   // very low-end phones keep the SVG mark
@@ -34,27 +35,19 @@ const measure = () => {
 
 // Build the scene once the page has painted and the browser is idle, so the 3D set-up never delays the text.
 if (canvas && stage && !saveData && !lowMemory) {
-  const start = () => ('transferControlToOffscreen' in canvas && window.Worker ? inWorker() : onPage());
+  const start = () => (window.Worker && window.OffscreenCanvas && 'transferToImageBitmap' in OffscreenCanvas.prototype ? inWorker() : onPage());
   const idle = () => ('requestIdleCallback' in window ? requestIdleCallback(start, { timeout: 1200 }) : setTimeout(start, 200));
   if (document.readyState === 'complete') idle(); else addEventListener('load', idle, { once: true });
 }
 
-// A canvas handed to a worker can't be drawn on here, so falling back to the page needs a fresh one.
-function onPageWithFreshCanvas() {
-  const c = canvas.cloneNode(false);
-  canvas.replaceWith(c);
-  canvas = c;
-  onPage();
-}
-
 function inWorker() {
   let w, fellBack = false;
-  const fallBack = () => { if (fellBack) return; fellBack = true; w?.terminate(); onPageWithFreshCanvas(); };
+  const fallBack = () => { if (fellBack) return; fellBack = true; w?.terminate(); onPage(); };
   try {
-    const off = canvas.transferControlToOffscreen();
     w = new Worker(new URL('./hero-worker.js', import.meta.url), { type: 'module' });
     // Frames go one at a time: while the worker is drawing, only the newest state waits, so it never falls behind.
-    let busy = false, next = null;
+    // The page's canvas only takes a bitmap context once frames arrive, so a fallback can still draw WebGL on it.
+    let busy = false, next = null, view = null;
     const port = {
       look: t => w.postMessage({ type: 'look', theme: t }),
       layout: b => w.postMessage({ type: 'layout', layout: b }),
@@ -63,13 +56,17 @@ function inWorker() {
     w.onmessage = ({ data: m }) => {
       if (m.type === 'mark') mark(m.name);
       else if (m.type === 'ready') run(port);
-      else if (m.type === 'drawn') { busy = false; drawn(); if (next) { const s = next; next = null; port.frame(s); } }
+      else if (m.type === 'drawn') {
+        (view ||= canvas.getContext('bitmaprenderer')).transferFromImageBitmap(m.frame);
+        busy = false; drawn();
+        if (next) { const s = next; next = null; port.frame(s); }
+      }
       else if (m.type === 'lost') root.classList.remove('gl-ready');
       else if (m.type === 'none') fallBack();          // no WebGL2 in workers here
       else w.terminate();                              // software graphics or a failed build: keep the SVG
     };
     w.onerror = fallBack;                              // e.g. no module workers
-    w.postMessage({ type: 'init', canvas: off, small, reduce, theme: theme(), layout: measure() }, [off]);
+    w.postMessage({ type: 'init', small, reduce, theme: theme(), layout: measure() });
   } catch (e) { fallBack(); }
 }
 
