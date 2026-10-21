@@ -7,7 +7,7 @@ Live at **https://paruto.com**, served by **Cloudflare**: the Worker `paruto-com
 - **Pushing doesn't deploy.** Deploy only committed code, from a clean checkout of `main`, because uncommitted work in this folder would otherwise go live:
   `W=/tmp/paruto-com-deploy && git worktree add -q --detach $W main && (cd $W && npx -y wrangler@4.141.0 deploy) ; git worktree remove --force $W`
   Check it with `curl -sI https://paruto.com/ | grep -i server` (`cloudflare`). Don't deploy or push without being asked.
-- GitHub Pages still builds `main` as a standby (`CNAME`, `.nojekyll`) until the user says to switch it off; ROLLBACK.md has the fallback steps. Once it's off, delete those two files and that ROLLBACK.md section.
+- GitHub Pages is switched off (21 October 2026); the GitHub repo only holds the code. Don't re-enable it or add a `CNAME` file.
 - Use `/usr/bin/git` (`/usr/local/bin/git` won't run on this Mac); `gh` is at `/opt/homebrew/bin/gh`.
 - Cloudflare is managed with wrangler here (the project has a `wrangler.jsonc`); DNS records with the `cf` CLI (`cf dns records delete` needs `--force` when run non-interactively, or it aborts while still exiting 0).
 

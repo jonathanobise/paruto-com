@@ -3,7 +3,7 @@
 paruto.com is a static site served by Cloudflare: the Worker `paruto-com` (static files plus a few lines in
 `worker.js` that send www.paruto.com to paruto.com). paruto.com and www.paruto.com are the Worker's custom domains, so
 Cloudflare manages their DNS records and certificates. There is no database, backend or migration, so a rollback is
-only ever a code change.
+only ever a code change. Never touch the zone's MX and TXT records (Zoho mail, SPF, verifications).
 
 ## Roll back the last deploy (fastest)
 
@@ -31,20 +31,6 @@ commits, revert each one, newest first.
 ```bash
 curl -sI https://paruto.com/ | grep -iE "^HTTP|^server"   # 200, server: cloudflare
 ```
-
-## Fall back to GitHub Pages (while it's still switched on)
-
-GitHub Pages still builds the site from `main` of
-[jonathanobise/paruto-com](https://github.com/jonathanobise/paruto-com) as a standby, with `CNAME` and `.nojekyll` in
-place. If Cloudflare itself is the problem:
-
-1. Remove the custom domains: delete the `routes` block from `wrangler.jsonc` and deploy, or remove them in the
-   dashboard under Workers → paruto-com → Settings → Domains & Routes.
-2. Recreate the GitHub records in the paruto.com zone, DNS only (not proxied): `A paruto.com` →
-   185.199.108.153, 185.199.109.153, 185.199.110.153, 185.199.111.153, and `CNAME www` → jonathanobise.github.io.
-
-Never touch the MX and TXT records (Zoho mail, SPF, verifications). Once GitHub Pages is switched off, this section
-no longer applies.
 
 ## Emergency: take the site offline
 

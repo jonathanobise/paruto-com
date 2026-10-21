@@ -36,4 +36,4 @@ node scripts/serve.mjs   # open http://localhost:8095 (clean URLs and the 404 pa
 ## Deploying
 Served by Cloudflare: the Worker `paruto-com`, with paruto.com and www.paruto.com as custom domains, also at
 https://paruto-com.paruto.workers.dev. Pushing doesn't deploy; see `CLAUDE.md`, "Deploying", for the command and
-`ROLLBACK.md` for undoing one. `CNAME` and `.nojekyll` keep GitHub Pages as a standby until it's switched off.
+`ROLLBACK.md` for undoing one.
