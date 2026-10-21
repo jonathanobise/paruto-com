@@ -33,11 +33,20 @@ const measure = () => {
     slotX: s.left - r.left + s.width / 2, slotY: s.top - r.top + s.height / 2, slotH: Math.min(s.width, s.height) * .8 };
 };
 
-// Build the scene once the page has painted and the browser is idle, so the 3D set-up never delays the text.
+// Build the scene once the first paint is on screen, the page has loaded and the browser is idle. Creating a WebGL
+// context can tie up the GPU process for a moment, and the page's first frame must never wait behind it (when load
+// fired before the first paint, it held the first paint back by about a second).
 if (canvas && stage && !saveData && !lowMemory) {
   const start = () => (window.Worker && window.OffscreenCanvas && 'transferToImageBitmap' in OffscreenCanvas.prototype ? inWorker() : onPage());
   const idle = () => ('requestIdleCallback' in window ? requestIdleCallback(start, { timeout: 1200 }) : setTimeout(start, 200));
-  if (document.readyState === 'complete') idle(); else addEventListener('load', idle, { once: true });
+  const painted = new Promise(done => {
+    const fcp = () => performance.getEntriesByName('first-contentful-paint').length > 0;
+    if (!window.PerformanceObserver || !(PerformanceObserver.supportedEntryTypes || []).includes('paint') || fcp()) return done();
+    const po = new PerformanceObserver(() => { if (fcp()) { po.disconnect(); done(); } });
+    po.observe({ type: 'paint', buffered: true });
+  });
+  const loaded = new Promise(done => (document.readyState === 'complete' ? done() : addEventListener('load', done, { once: true })));
+  Promise.all([painted, loaded]).then(idle);
 }
 
 function inWorker() {
