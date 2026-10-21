@@ -1,0 +1,19 @@
+{
+  "$schema": "https://unpkg.com/wrangler@4.141.0/config-schema.json",
+  // paruto.com: the Paruto landing page, served by Cloudflare as static files. The only code is worker.js (www → apex).
+  // Everything in this folder is published except what .assetsignore lists. Deploy only committed code from main:
+  // a clean checkout, then `npx wrangler deploy` (see CLAUDE.md, "Deploying").
+  "name": "paruto-com",
+  "main": "worker.js",
+  "compatibility_date": "2026-09-25",
+  "assets": {
+    "directory": "./",
+    "binding": "ASSETS",
+    // Every request goes through worker.js first so www.* can be redirected; it hands everything else to the files.
+    "run_worker_first": true,
+    // Unknown addresses get the site's own 404 page; /privacy serves privacy.html (and /privacy.html redirects to it).
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  },
+  "workers_dev": true
+}

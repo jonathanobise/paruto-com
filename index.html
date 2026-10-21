@@ -552,7 +552,7 @@
     </svg>
   </div>
   <div class="footer__base">
-    <span>© <span id="year">2026</span> Paruto. All rights reserved. <a class="footer__privacy" href="/privacy.html">Privacy</a></span>
+    <span>© <span id="year">2026</span> Paruto. All rights reserved. <a class="footer__privacy" href="/privacy">Privacy</a></span>
     <div class="appearance">
       <span class="appearance__group"><span id="appearance-label">Appearance</span>
       <div class="seg" role="radiogroup" aria-labelledby="appearance-label">
@@ -579,7 +579,17 @@
 
 <script src="app.js" defer></script>
 <script type="module" src="hero-gl.js"></script>
-<!-- Cloudflare Web Analytics: cookieless, no personal data; the token is public by design -->
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "1601fa9c268b4c16b05ed2bf0e5ed6c5"}'></script>
+<script>
+  // Cloudflare Web Analytics: cookieless, no personal data; the token is public by design. Not loaded when the browser
+  // asks not to be tracked (Global Privacy Control or Do Not Track), or in local development.
+  (function () {
+    var n = navigator, local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+    if (local || n.globalPrivacyControl || n.doNotTrack === '1' || window.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.defer = true; s.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+    s.setAttribute('data-cf-beacon', '{"token": "1601fa9c268b4c16b05ed2bf0e5ed6c5"}');
+    document.head.appendChild(s);
+  })();
+</script>
 </body>
 </html>
