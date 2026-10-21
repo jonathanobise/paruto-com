@@ -825,3 +825,18 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
 /* smallest phones (320px): let the showcase column shrink and long button labels wrap */
 .showcase{grid-template-columns:minmax(0,1fr)}
 .showcase__all .btn{white-space:normal;text-align:center;line-height:1.3;padding-block:10px}
+/* Sections below the first screen skip rendering until they're about to scroll in, which halves the first layout.
+   The sizes are estimates for the scrollbar until then; `auto` keeps each section's real height once it has rendered.
+   `.cv-all` (set before first paint for #links, reloads and Back/Forward, and by app.js on any in-page link) renders
+   everything, so jumps land exactly. The companies section only joins below 1001px: its chapters are pinned and placed
+   from scroll measurements. */
+:root:not(.cv-all) :is(.glance,#products,#craft,#mark,.principles,.contact,.footer){content-visibility:auto;contain-intrinsic-size:auto var(--cis,900px)}
+.glance{--cis:380px}
+#products{--cis:2800px}
+#craft{--cis:1000px}
+#mark{--cis:1300px}
+.principles{--cis:450px}
+.contact{--cis:640px}
+/* Below 1001px the companies are a plain grid (chapters need a wider window), so they can wait too. */
+@media (max-width:1000px){:root:not(.cv-all) #companies{content-visibility:auto;contain-intrinsic-size:auto 3000px}}
+@media (max-width:700px){#products{--cis:4600px}#craft{--cis:1750px}#mark{--cis:1450px}.principles{--cis:650px}.footer{--cis:1000px}}

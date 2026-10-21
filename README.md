@@ -6,6 +6,7 @@ The group landing page for Paruto: Media, Music, Capital and Technology. Static 
 index.html     the page (all copy lives here)
 DESIGN.md      how Apple HIG guidance is applied
 scripts/sync-products.mjs  builds the products showcase from ../paruto-apps/apps.json (run after the catalogue changes)
+scripts/serve.mjs  local preview server
 404.html       branded not-found page (served for any missing path; absolute URLs only)
 robots.txt, sitemap.xml   search engine basics; update sitemap lastmod when content changes
 privacy.html   privacy notice (linked in the footer); update it whenever the site starts collecting or loading anything new
@@ -17,8 +18,11 @@ assets/fonts/  self-hosted brand fonts (Latin woff2, SIL OFL licences included)
 assets/og/     1200×630 share image, rendered from the hero
 styles.css     design tokens at the top, then sections in page order
 app.js         progressive enhancement: nav, scroll effects, reveals, product rail
-hero-gl.js     the 3D Paruto mark (three.js) and the scroll flight through it; SVG fallback if unavailable
-vendor/three/  three.js r186 + two addons, vendored (MIT, see vendor/three/LICENSE); mapped by the importmap in index.html
+hero-gl.js     the 3D Paruto mark's page side: scroll flight, layout, pointer, theme; SVG fallback if unavailable
+hero-scene.js  the 3D scene itself (three.js), with no DOM, so it can run in hero-worker.js on an OffscreenCanvas
+hero-worker.js runs hero-scene.js off the main thread
+hero-probe.js  opens the WebGL2 context on hardware graphics only
+vendor/three/  three.js r186 + two addons, vendored (MIT, see vendor/three/LICENSE); bundled into hero-three.min.js by scripts/build-hero-three.mjs
 assets/logos/  copied from paruto-brand (gold/white lockups and the symbol)
 assets/icons/  favicons, app icons, og-image (copied from paruto-brand)
 assets/products/  product screenshots (copied from paruto-apps)
@@ -26,7 +30,7 @@ assets/products/  product screenshots (copied from paruto-apps)
 
 ## Preview locally
 ```bash
-python3 -m http.server 8095   # open http://localhost:8095
+node scripts/serve.mjs   # open http://localhost:8095 (clean URLs and the 404 page, like the Worker)
 ```
 
 ## Deploying

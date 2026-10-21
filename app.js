@@ -172,6 +172,9 @@
   onScroll();
   document.fonts?.ready.then(placePill);
 
+  /* ---- in-page links: render every section first (styles.css skips the off-screen ones), so the jump lands exactly ---- */
+  document.addEventListener('click', e => { if (e.target.closest && e.target.closest('a[href^="#"]')) root.classList.add('cv-all'); }, true);
+
   /* ---- reveal on scroll ---- */
   const io = new IntersectionObserver(entries => {
     entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });

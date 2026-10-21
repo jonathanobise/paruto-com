@@ -62,6 +62,10 @@
     // Dark mode also has a depth: Graphite, Midnight (default) or OLED true black.
     var d = document.documentElement, pref = null, depth = null;
     d.classList.remove('no-js');
+    // Sections below the first screen skip rendering until needed (styles.css), but a visit that lands partway down
+    // the page (a #link, a reload, Back/Forward) renders them all first, so it lands exactly where it should.
+    var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+    if (location.hash || (nav && /^(reload|back_forward)$/.test(nav.type))) d.classList.add('cv-all');
     try { pref = localStorage.getItem('paruto-theme'); depth = localStorage.getItem('paruto-depth'); } catch (e) {}
     var theme = pref === 'light' || pref === 'dark' ? pref : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
     depth = depth === 'graphite' || depth === 'oled' ? depth : 'midnight';

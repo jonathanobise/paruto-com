@@ -1,165 +1,99 @@
 /* paruto.com — the Paruto mark in 3D, and the scroll flight through it.
    Progressive: if modules, WebGL or the vendor files are unavailable, the SVG mark in .hero__stage stays.
-   Dark appearance: polished gold. Light appearance: black lacquer with a gold rim light
-   (the brand never puts the gold mark on a light background). */
-// three.js is imported on demand in start() once the page is idle (and only on hardware graphics), so it never competes with the first paint.
-let THREE, RoomEnvironment;
+   The scene (hero-scene.js) runs in a worker on an OffscreenCanvas (hero-worker.js), so building it, compiling its
+   shaders and drawing every frame happen off the page's main thread and never block a tap or a scroll. Browsers that
+   can't draw WebGL in a worker draw it here instead. This file reads the page (scroll, layout, pointer, appearance),
+   sends that to the scene, and owns the page effects: the flash, the canvas fade and `gl-ready`. */
+// three.js is only loaded by hero-scene.js, on hardware graphics, once the page is idle, so it never competes with the first paint.
+import { openGL } from './hero-probe.js';
 
 const root = document.documentElement;
 const hero = document.querySelector('.hero');
 const sticky = document.querySelector('.hero__sticky');
 const stage = document.querySelector('.hero__stage');
-const canvas = document.querySelector('.hero__gl');
+let canvas = document.querySelector('.hero__gl');
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const saveData = navigator.connection && navigator.connection.saveData;
 const lowMemory = navigator.deviceMemory && navigator.deviceMemory <= 2;   // very low-end phones keep the SVG mark
 const small = innerWidth < 700;
 
-// The brand symbol (365 × 347 units), built directly rather than parsed from SVG: straight runs plus four
-// half-circles, all centred on (190.5, 173.5). Same path as #pd in index.html:
-// M75 259V77.5H190.5A96 96 0 0 1 190.5 269.5H168.5L91 347H0V0H190.5A173.5 173.5 0 0 1 190.5 347H147L184 310
-// H190.5A136.5 136.5 0 0 0 190.5 37H37V310H79L153.5 235.5H190.5A62 62 0 0 0 190.5 111.5H111V223Z
-function symbolShape() {
-  const CX = 190.5, CY = 173.5, UP = -Math.PI / 2, DOWN = Math.PI / 2;  // y-down, as in the SVG
-  const s = new THREE.Shape();
-  s.moveTo(75, 259); s.lineTo(75, 77.5); s.lineTo(CX, 77.5);
-  s.absarc(CX, CY, 96, UP, DOWN, false);                 // P bowl, outer edge
-  s.lineTo(168.5, 269.5); s.lineTo(91, 347); s.lineTo(0, 347); s.lineTo(0, 0); s.lineTo(CX, 0);
-  s.absarc(CX, CY, 173.5, UP, DOWN, false);              // D, outer edge
-  s.lineTo(147, 347); s.lineTo(184, 310); s.lineTo(CX, 310);
-  s.absarc(CX, CY, 136.5, DOWN, UP, true);               // D, inner edge
-  s.lineTo(37, 37); s.lineTo(37, 310); s.lineTo(79, 310); s.lineTo(153.5, 235.5); s.lineTo(CX, 235.5);
-  s.absarc(CX, CY, 62, DOWN, UP, true);                  // P bowl, inner edge
-  s.lineTo(111, 111.5); s.lineTo(111, 223); s.closePath();
-  return s;
-}
-
-const LOOKS = {
-  dark:  { color: 0xE6B24E, metalness: 1, roughness: .14, clearcoat: .4, clearcoatRoughness: .12, env: 1.5, key: 2.6, rim: 3.2, rimColor: 0xF5D68A, exposure: 1.05 },
-  light: { color: 0x0E0E0E, metalness: .35, roughness: .14, clearcoat: 1, clearcoatRoughness: .04, env: 1, key: 1.6, rim: 6, rimColor: 0xE0A63A, exposure: 1 },
-};
-
 const clamp01 = v => Math.min(1, Math.max(0, v));
-const lerp = (a, b, t) => a + (b - a) * t;
 const smooth = (a, b, v) => { const t = clamp01((v - a) / (b - a)); return t * t * (3 - 2 * t); };
-const easeOut = t => 1 - Math.pow(1 - t, 4);
+const theme = () => (root.dataset.theme === 'light' ? 'light' : 'dark');
+const mark = name => performance.mark('3d:' + name);
+const drawn = () => root.classList.add('gl-ready');
 
-// Only run the 3D scene on hardware graphics. A software renderer (SwiftShader, llvmpipe, GPU-less or locked-down
-// devices) takes seconds to compile the shaders and stalls the whole page, so those keep the flat SVG mark —
-// skipping three.js where it can't run smoothly. Checked before three.js is even downloaded.
-const SOFTWARE = /swiftshader|llvmpipe|softpipe|software|basic render/i;
-function probe(canvas) {   // shared by the worker test and the main-thread fallback
-  const opts = { failIfMajorPerformanceCaveat: true };
-  const gl = canvas.getContext('webgl2', opts) || canvas.getContext('webgl', opts);
-  if (!gl) return false;
-  const info = gl.getExtension('WEBGL_debug_renderer_info');
-  const name = info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
-  const lose = gl.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext();
-  return !SOFTWARE.test(name);
-}
-function mainThreadCheck() { try { return probe(document.createElement('canvas')); } catch (e) { return false; } }
-// The test runs in a worker on an OffscreenCanvas, because creating even a 1×1 context on a software renderer
-// blocks for hundreds of milliseconds. Browsers without OffscreenCanvas WebGL in workers fall back to the main thread.
-function hardwareGL() {
-  return new Promise(resolve => {
-    try {
-      if (!('OffscreenCanvas' in window) || !window.Worker) return resolve(mainThreadCheck());
-      const src = `const SOFTWARE=${SOFTWARE};${probe.toString()};
-        try { postMessage(probe(new OffscreenCanvas(1, 1))); } catch (e) { postMessage('unsupported'); }`;
-      const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
-      const w = new Worker(url);
-      let settled = false;
-      const done = v => { if (settled) return; settled = true; w.terminate(); URL.revokeObjectURL(url); resolve(v === 'unsupported' ? mainThreadCheck() : v === true); };
-      w.onmessage = e => done(e.data);
-      w.onerror = () => done('unsupported');
-      setTimeout(() => done(false), 3000);   // a device that can't answer in 3 s can't run the scene smoothly either
-    } catch (e) { resolve(mainThreadCheck()); }
-  });
-}
+// Where the mark sits: the start pose fills .hero__stage; the flight pulls it to the centre of the pinned hero.
+const measure = () => {
+  const r = sticky.getBoundingClientRect();
+  const s = stage.getBoundingClientRect();
+  const W = Math.max(1, r.width), H = Math.max(1, r.height);
+  return { W, H, dpr: Math.min(devicePixelRatio || 1, W < 700 ? 1.75 : 2),
+    slotX: s.left - r.left + s.width / 2, slotY: s.top - r.top + s.height / 2, slotH: Math.min(s.width, s.height) * .8 };
+};
 
 // Build the scene once the page has painted and the browser is idle, so the 3D set-up never delays the text.
 if (canvas && stage && !saveData && !lowMemory) {
-  // One tree-shaken bundle of just the three.js classes the hero uses (scripts/build-hero-three.mjs).
-  const start = () => hardwareGL().then(ok => ok && import('./vendor/three/hero-three.min.js')
-    .then(m => { THREE = m; RoomEnvironment = m.RoomEnvironment; return init(); }))
-    .catch(() => { /* keep the SVG fallback */ });
+  const start = () => ('transferControlToOffscreen' in canvas && window.Worker ? inWorker() : onPage());
   const idle = () => ('requestIdleCallback' in window ? requestIdleCallback(start, { timeout: 1200 }) : setTimeout(start, 200));
   if (document.readyState === 'complete') idle(); else addEventListener('load', idle, { once: true });
 }
 
-// Set-up runs in short steps that hand control back to the browser between them, and shaders compile
-// asynchronously before the first frame, so building the scene never blocks a tap or a scroll.
-const pause = () => new Promise(r => setTimeout(r, 0));
-async function init() {
-  const step = n => performance.mark('3d:' + n);
-  step('start');
-  let ready = false;                              // no frames until the scene is fully prepared
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance', failIfMajorPerformanceCaveat: true });
-  renderer.setClearColor(0x000000, 0);
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  step('renderer');
-  await pause();
+// A canvas handed to a worker can't be drawn on here, so falling back to the page needs a fresh one.
+function onPageWithFreshCanvas() {
+  const c = canvas.cloneNode(false);
+  canvas.replaceWith(c);
+  canvas = c;
+  onPage();
+}
 
-  const scene = new THREE.Scene();
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), .04, .1, 100, { size: 128 }).texture;   // 128² is a quarter of the default work, same look at this roughness
-  scene.environmentRotation.set(.45, Math.PI * .8, 0);   // put the studio's bright panels where the face can see them
-  pmrem.dispose();
-  step('environment');
-  await pause();
+function inWorker() {
+  let w, fellBack = false;
+  const fallBack = () => { if (fellBack) return; fellBack = true; w?.terminate(); onPageWithFreshCanvas(); };
+  try {
+    const off = canvas.transferControlToOffscreen();
+    w = new Worker(new URL('./hero-worker.js', import.meta.url), { type: 'module' });
+    // Frames go one at a time: while the worker is drawing, only the newest state waits, so it never falls behind.
+    let busy = false, next = null;
+    const port = {
+      look: t => w.postMessage({ type: 'look', theme: t }),
+      layout: b => w.postMessage({ type: 'layout', layout: b }),
+      frame: s => { if (busy) { next = s; return; } busy = true; w.postMessage({ type: 'frame', state: s }); },
+    };
+    w.onmessage = ({ data: m }) => {
+      if (m.type === 'mark') mark(m.name);
+      else if (m.type === 'ready') run(port);
+      else if (m.type === 'drawn') { busy = false; drawn(); if (next) { const s = next; next = null; port.frame(s); } }
+      else if (m.type === 'lost') root.classList.remove('gl-ready');
+      else if (m.type === 'none') fallBack();          // no WebGL2 in workers here
+      else w.terminate();                              // software graphics or a failed build: keep the SVG
+    };
+    w.onerror = fallBack;                              // e.g. no module workers
+    w.postMessage({ type: 'init', canvas: off, small, reduce, theme: theme(), layout: measure() }, [off]);
+  } catch (e) { fallBack(); }
+}
 
-  // Extrude the symbol with a deep, soft bevel so edges catch the light.
-  const geo = new THREE.ExtrudeGeometry(symbolShape(), { depth: 44, bevelEnabled: true, bevelThickness: 9, bevelSize: 4.5,
-    bevelSegments: small ? 6 : 10, curveSegments: small ? 28 : 56 });
-  geo.center();                                   // the P's counter sits almost exactly on the origin
-  const mat = new THREE.MeshPhysicalMaterial();
-  const mesh = new THREE.Mesh(geo, mat);
-  mesh.rotation.x = Math.PI;                      // SVG is y-down
-  const mark = new THREE.Group();
-  mark.add(mesh);
-  scene.add(mark);
-  step('geometry');
-  await pause();
+async function onPage() {
+  try {
+    const got = openGL(canvas);
+    if (!got.gl) return;                               // keep the SVG
+    canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); root.classList.remove('gl-ready'); });
+    const { createScene } = await import('./hero-scene.js');
+    const s = await createScene({ canvas, context: got.gl, small, reduce, step: mark });
+    s.look(theme()); s.layout(measure());
+    await s.compile();
+    run({ look: s.look, layout: s.layout, frame: st => { s.frame(st); drawn(); } });
+  } catch (e) { /* keep the SVG fallback */ }
+}
 
-  const key = new THREE.DirectionalLight(0xfff1d6, 2.6);
-  const rim = new THREE.DirectionalLight(0xF5D68A, 3.2);
-  rim.position.set(650, -250, -450);
-  scene.add(key, rim);
-
-  const camera = new THREE.PerspectiveCamera(30, 1, 1, 8000);
-  const TAN = Math.tan(THREE.MathUtils.degToRad(15));
-  const MARK_H = 365;                             // world height incl. bevel
-
-  const applyLook = () => {
-    const l = LOOKS[root.dataset.theme === 'light' ? 'light' : 'dark'];
-    mat.color.setHex(l.color);
-    Object.assign(mat, { metalness: l.metalness, roughness: l.roughness, clearcoat: l.clearcoat, clearcoatRoughness: l.clearcoatRoughness, envMapIntensity: l.env });
-    key.intensity = l.key;
-    rim.intensity = l.rim;
-    rim.color.setHex(l.rimColor);
-    renderer.toneMappingExposure = l.exposure;
-    request();
-  };
-
-  // ---- layout: start pose sits in .hero__stage; the flight pulls it to the centre of the screen ----
-  let W = 1, H = 1, slotX = 0, slotY = 0, d0 = 1200;
-  const layout = () => {
-    const r = sticky.getBoundingClientRect();
-    const s = stage.getBoundingClientRect();
-    W = Math.max(1, r.width); H = Math.max(1, r.height);
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, W < 700 ? 1.75 : 2));
-    renderer.setSize(W, H, false);
-    camera.aspect = W / H;
-    slotX = s.left - r.left + s.width / 2;
-    slotY = s.top - r.top + s.height / 2;
-    const slotH = Math.min(s.width, s.height) * .8;
-    d0 = (MARK_H / 2) / TAN * (H / slotH);
-    request();
-  };
+// Drive the scene, wherever it runs, from the page.
+function run(port) {
+  const t0 = performance.now();
+  let W = 1, H = 1;
+  const layout = () => { const b = measure(); W = b.W; H = b.H; port.layout(b); request(); };
 
   // ---- input ----
-  const target = { x: 0, y: 0 }, tilt = { x: 0, y: 0 };
+  const target = { x: 0, y: 0 };
   if (!reduce && matchMedia('(pointer: fine)').matches) {
     sticky.addEventListener('pointermove', e => {
       target.x = (e.clientX / W - .5) * .55;
@@ -167,66 +101,32 @@ async function init() {
     });
     sticky.addEventListener('pointerleave', () => { target.x = 0; target.y = 0; });
   }
+  // hero progress: 0 at the top, 1 when the pinned hero releases (app.js uses the same measure for the copy fade)
   const progress = () => {
     const span = hero.offsetHeight - innerHeight;
     return span > 0 ? clamp01(scrollY / span) : 0;
   };
 
   // ---- frame ----
-  const t0 = performance.now();
-  let first = true;
   const draw = now => {
-    const t = (now - t0) / 1000;
     const p = reduce ? 0 : progress();
-    const intro = reduce ? 1 : easeOut(clamp01((now - t0 - 150) / 1900));
-    tilt.x += (target.x - tilt.x) * .05;
-    tilt.y += (target.y - tilt.y) * .05;
-
-    // pose: turned three-quarters at rest, swinging in on load, squaring up as the flight begins
-    const settle = 1 - smooth(.04, .44, p);
-    const idle = reduce ? 0 : Math.sin(t * .62);
-    mark.rotation.y = ((-.48 - (1 - intro) * 2.6) + tilt.x + idle * .035) * settle;
-    mark.rotation.x = (.12 + tilt.y) * settle;
-    mark.rotation.z = -.07 * smooth(.25, .9, p);
-    mark.position.y = idle * 5 * settle;
-    mark.scale.setScalar(lerp(.86, 1, intro));
-    key.position.set(lerp(-1100, -320, intro), 520, 720);   // the highlight glides across on load
-
-    // flight: ease toward the face, then through the P's counter
-    const f = clamp01((p - .1) / .84);
-    camera.position.set(0, 0, 30 + (d0 - 30) * Math.pow(1 - f, 2.2));
-    camera.lookAt(0, 0, -1000);
-    const c = smooth(0, .36, p);
-    camera.setViewOffset(W, H, (W / 2 - slotX) * (1 - c), (H / 2 - slotY) * (1 - c), W, H);
-    camera.updateProjectionMatrix();
-
     // a bloom of light as the counter fills the screen; the canvas bows out once we're through
+    const f = clamp01((p - .1) / .84);
     sticky.style.setProperty('--flash', (Math.exp(-Math.pow((f - .56) / .12, 2)) * .9).toFixed(3));
     canvas.style.opacity = (1 - smooth(.6, .76, f)).toFixed(3);
-
-    renderer.render(scene, camera);
-    if (first) { first = false; root.classList.add('gl-ready'); }
+    port.frame({ ms: now - t0, p, target: { x: target.x, y: target.y } });
   };
 
   // ---- loop: only while the hero is on screen and the tab is visible; on demand under Reduce Motion ----
   let raf = 0, visible = true, pending = false;
   const loop = now => { raf = 0; draw(now); if (!reduce && visible && !document.hidden) raf = requestAnimationFrame(loop); };
   function request() {
-    if (!ready) return;
     if (reduce) { if (!pending) { pending = true; requestAnimationFrame(now => { pending = false; draw(now); }); } return; }
     if (!raf && visible && !document.hidden) raf = requestAnimationFrame(loop);
   }
   new IntersectionObserver(([en]) => { visible = en.isIntersecting; request(); }).observe(hero);
   document.addEventListener('visibilitychange', request);
-  new MutationObserver(applyLook).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+  new MutationObserver(() => { port.look(theme()); request(); }).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
   addEventListener('resize', layout);
-  canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); root.classList.remove('gl-ready'); });
-
-  applyLook();
   layout();
-  await pause();
-  if (renderer.compileAsync) { try { await renderer.compileAsync(scene, camera); } catch (e) { /* compile on first frame instead */ } }
-  step('compiled');
-  ready = true;
-  request();
 }
