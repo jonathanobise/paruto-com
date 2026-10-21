@@ -5,6 +5,7 @@ The group landing page for Paruto: Media, Music, Capital and Technology. Static 
 ```
 index.html     the page (all copy lives here)
 DESIGN.md      how Apple HIG guidance is applied
+scripts/sync-products.mjs  builds the products showcase from ../paruto-apps/apps.json (run after the catalogue changes)
 404.html       branded not-found page (GitHub Pages serves it for any missing path; absolute URLs only)
 robots.txt, sitemap.xml   search engine basics; update sitemap lastmod when content changes
 privacy.html   privacy notice (linked in the footer); update it whenever the site starts collecting or loading anything new

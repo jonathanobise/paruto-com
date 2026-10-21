@@ -47,23 +47,29 @@ const easeOut = t => 1 - Math.pow(1 - t, 4);
 // Build the scene once the page has painted and the browser is idle, so the 3D set-up never delays the text.
 if (canvas && stage && !saveData && !lowMemory) {
   const start = () => Promise.all([import('three'), import('three/addons/RoomEnvironment.js')])
-    .then(([three, env]) => { THREE = three; RoomEnvironment = env.RoomEnvironment; init(); })
+    .then(([three, env]) => { THREE = three; RoomEnvironment = env.RoomEnvironment; return init(); })
     .catch(() => { /* keep the SVG fallback */ });
   const idle = () => ('requestIdleCallback' in window ? requestIdleCallback(start, { timeout: 1200 }) : setTimeout(start, 200));
   if (document.readyState === 'complete') idle(); else addEventListener('load', idle, { once: true });
 }
 
-function init() {
+// Set-up runs in short steps that hand control back to the browser between them, and shaders compile
+// asynchronously before the first frame, so building the scene never blocks a tap or a scroll.
+const pause = () => new Promise(r => setTimeout(r, 0));
+async function init() {
+  let ready = false;                              // no frames until the scene is fully prepared
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
   renderer.setClearColor(0x000000, 0);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  await pause();
 
   const scene = new THREE.Scene();
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), .04).texture;
   scene.environmentRotation.set(.45, Math.PI * .8, 0);   // put the studio's bright panels where the face can see them
   pmrem.dispose();
+  await pause();
 
   // Extrude the symbol with a deep, soft bevel so edges catch the light.
   const geo = new THREE.ExtrudeGeometry(symbolShape(), { depth: 44, bevelEnabled: true, bevelThickness: 9, bevelSize: 4.5,
@@ -75,6 +81,7 @@ function init() {
   const mark = new THREE.Group();
   mark.add(mesh);
   scene.add(mark);
+  await pause();
 
   const key = new THREE.DirectionalLight(0xfff1d6, 2.6);
   const rim = new THREE.DirectionalLight(0xF5D68A, 3.2);
@@ -166,6 +173,7 @@ function init() {
   let raf = 0, visible = true, pending = false;
   const loop = now => { raf = 0; draw(now); if (!reduce && visible && !document.hidden) raf = requestAnimationFrame(loop); };
   function request() {
+    if (!ready) return;
     if (reduce) { if (!pending) { pending = true; requestAnimationFrame(now => { pending = false; draw(now); }); } return; }
     if (!raf && visible && !document.hidden) raf = requestAnimationFrame(loop);
   }
@@ -177,4 +185,8 @@ function init() {
 
   applyLook();
   layout();
+  await pause();
+  if (renderer.compileAsync) { try { await renderer.compileAsync(scene, camera); } catch (e) { /* compile on first frame instead */ } }
+  ready = true;
+  request();
 }

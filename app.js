@@ -9,8 +9,11 @@
 
   /* ---- appearance: Dark / Light, remembered per device; "Auto" follows the system setting ---- */
   const themeBtn = $('#theme-btn');
-  const seg = $('.seg');
+  const seg = $('.appearance .seg:not(.seg--depth)');
   const segBtns = $$('button', seg);
+  const depthSeg = $('#depth-seg');
+  const depthBtns = depthSeg ? $$('button', depthSeg) : [];
+  const DEPTH_COLOR = { graphite: '#161618', midnight: '#080808', oled: '#000000' };
   const sysLight = matchMedia('(prefers-color-scheme: light)');
   const metaTheme = $('#theme-color');
   const resolve = pref => pref === 'auto' ? (sysLight.matches ? 'light' : 'dark') : pref;
@@ -18,7 +21,14 @@
     const theme = resolve(pref);
     root.dataset.theme = theme;
     root.dataset.themePref = pref;
-    metaTheme.content = theme === 'light' ? '#F5F3EF' : '#080808';
+    metaTheme.content = theme === 'light' ? '#F5F3EF' : DEPTH_COLOR[root.dataset.depth] || '#080808';
+    // depth only applies in dark; the control steps aside in light
+    if (depthSeg) $('#depth-group').hidden = theme === 'light';
+    depthBtns.forEach((b, i) => {
+      const on = b.dataset.depth === (root.dataset.depth || 'midnight');
+      b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1;
+      if (on) depthSeg.style.setProperty('--i', i);
+    });
     themeBtn.setAttribute('aria-label', theme === 'light' ? 'Switch to dark appearance' : 'Switch to light appearance');
     segBtns.forEach((b, i) => {
       const on = b.dataset.pref === pref;
@@ -51,6 +61,19 @@
     segBtns[i].focus();
   });
   sysLight.addEventListener('change', () => { if (root.dataset.themePref === 'auto') setPref('auto'); });
+  const setDepth = d => {
+    root.dataset.depth = d;
+    try { d === 'midnight' ? localStorage.removeItem('paruto-depth') : localStorage.setItem('paruto-depth', d); } catch (e) {}
+    paint(root.dataset.themePref || 'auto');
+  };
+  depthBtns.forEach(b => b.addEventListener('click', () => setDepth(b.dataset.depth)));
+  depthSeg?.addEventListener('keydown', e => {
+    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    if (!step) return;
+    e.preventDefault();
+    const i = (depthBtns.findIndex(b => b.dataset.depth === root.dataset.depth) + step + depthBtns.length) % depthBtns.length;
+    setDepth(depthBtns[i].dataset.depth); depthBtns[i].focus();
+  });
 
   /* ---- nav: mobile menu ---- */
   const nav = $('#nav');
@@ -225,53 +248,33 @@
     }
   }
 
-  /* ---- products rail: paddles, page control, arrow keys ---- */
-  const rail = $('#rail');
-  const cards = $$('.card', rail);
-  const btns = $$('[data-rail]');
-  const dots = $('#dots');
-  const behavior = reduce ? 'auto' : 'smooth';
-  const goTo = i => {
-    const c = cards[Math.max(0, Math.min(cards.length - 1, i))];
-    rail.scrollTo({ left: c.offsetLeft - cards[0].offsetLeft, behavior });
-  };
-  const nearest = () => {
-    const x = rail.scrollLeft + cards[0].offsetLeft;
-    let best = 0, d = Infinity;
-    cards.forEach((c, i) => { const dd = Math.abs(c.offsetLeft - x); if (dd < d) { d = dd; best = i; } });
-    // at the end of the scroll range, the last card is current even if it can't snap to the start
-    if (rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 8) best = cards.length - 1;
-    return best;
-  };
-  cards.forEach((c, i) => {
-    const name = c.querySelector('.card__title')?.textContent.trim() || `Item ${i + 1}`;
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.setAttribute('aria-label', `Show ${name}`);
-    b.addEventListener('click', () => goTo(i));
-    dots.append(b);
-  });
-  const dotBtns = $$('button', dots);
-  btns.forEach(b => b.addEventListener('click', () => goTo(nearest() + +b.dataset.rail)));
-  rail.addEventListener('keydown', e => {
-    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); goTo(nearest() + (e.key === 'ArrowRight' ? 1 : -1)); }
-  });
-  const syncRail = () => {
-    const i = nearest();
-    // depth: cards ease back and dim as they move off the leading edge
-    const lead = rail.getBoundingClientRect().left + parseFloat(getComputedStyle(rail).paddingLeft);
-    if (!reduce) cards.forEach(c => {
-      const d = Math.abs(c.getBoundingClientRect().left - lead) / c.offsetWidth;
-      c.style.setProperty('--k', Math.min(d, 1).toFixed(3));
+  /* ---- products showcase: cards lift toward the pointer (fine pointers, motion allowed) ---- */
+  if (!reduce && finePointer) $$('.pcard__link, .feature').forEach(el => {
+    el.addEventListener('pointermove', e => {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--rx', ((e.clientY - r.top) / r.height - .5) * -4 + 'deg');
+      el.style.setProperty('--ry', ((e.clientX - r.left) / r.width - .5) * 6 + 'deg');
+      el.style.setProperty('--mx', (e.clientX - r.left) + 'px'); el.style.setProperty('--my', (e.clientY - r.top) + 'px');
     });
-    btns[0].disabled = rail.scrollLeft < 8;
-    btns[1].disabled = rail.scrollLeft + rail.clientWidth > rail.scrollWidth - 8;
-    dotBtns.forEach((d, j) => j === i ? d.setAttribute('aria-current', 'true') : d.removeAttribute('aria-current'));
-  };
-  let railTick = false;
-  rail.addEventListener('scroll', () => { if (!railTick) { railTick = true; requestAnimationFrame(() => { railTick = false; syncRail(); }); } }, { passive: true });
-  addEventListener('resize', syncRail);
-  syncRail();
+    el.addEventListener('pointerleave', () => { el.style.setProperty('--rx', '0deg'); el.style.setProperty('--ry', '0deg'); });
+  });
+
+  /* ---- press feedback, app-wide from one place: a ripple from the touch point plus the capsule's own dip ---- */
+  const PRESSABLE = '.btn, .iconbtn, .theme-btn, .seg button, .nav__links a, .menu a, .pcard__link, .nowlive, .chapters__index button, .totop';
+  document.addEventListener('pointerdown', e => {
+    const el = e.target.closest(PRESSABLE);
+    if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true') return;
+    if (reduce) return;                       // Reduce Motion keeps the dip (CSS :active) and drops the ripple
+    const r = el.getBoundingClientRect();
+    const size = Math.hypot(r.width, r.height) * 2;
+    const ink = document.createElement('span');
+    ink.className = 'ripple';
+    ink.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - r.left - size / 2}px;top:${e.clientY - r.top - size / 2}px`;
+    el.classList.add('has-ripple');
+    el.append(ink);
+    ink.addEventListener('animationend', () => ink.remove(), { once: true });
+    if (navigator.vibrate && e.pointerType === 'touch') { try { navigator.vibrate(8); } catch (_) {} }   // light haptic where supported
+  }, { passive: true });
 
   /* ---- companies as scroll chapters (wide screens, motion allowed); the bento grid otherwise ---- */
   const chapters = $('.chapters');
@@ -340,6 +343,7 @@
     let fitTimer;
     addEventListener('resize', () => { sync(); clearTimeout(fitTimer); fitTimer = setTimeout(setMode, 200); });
     document.fonts?.ready.then(setMode);   // re-measure once the brand fonts have loaded
+    addEventListener('load', () => { setMode(); setTimeout(setMode, 600); }, { once: true });   // and once everything has settled
     wide.addEventListener('change', setMode);
     setMode();
   }

@@ -18,12 +18,14 @@
 <script>
   // Same appearance logic as the homepage: saved choice, else the system setting.
   (function () {
-    var d = document.documentElement, pref = null;
+    var d = document.documentElement, pref = null, depth = null;
     d.classList.remove('no-js');
-    try { pref = localStorage.getItem('paruto-theme'); } catch (e) {}
+    try { pref = localStorage.getItem('paruto-theme'); depth = localStorage.getItem('paruto-depth'); } catch (e) {}
     var theme = pref === 'light' || pref === 'dark' ? pref : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    depth = depth === 'graphite' || depth === 'oled' ? depth : 'midnight';
     d.setAttribute('data-theme', theme);
-    document.getElementById('theme-color').setAttribute('content', theme === 'light' ? '#F5F3EF' : '#080808');
+    d.setAttribute('data-depth', depth);
+    document.getElementById('theme-color').setAttribute('content', theme === 'light' ? '#F5F3EF' : { graphite: '#161618', midnight: '#080808', oled: '#000000' }[depth]);
   })();
 </script>
 <style>

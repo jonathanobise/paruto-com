@@ -60,13 +60,16 @@
 <script>
   // Resolve the appearance before first paint: saved choice ('light' | 'dark'), else the system setting.
   (function () {
-    var d = document.documentElement, pref = null;
+    // Dark mode also has a depth: Graphite, Midnight (default) or OLED true black.
+    var d = document.documentElement, pref = null, depth = null;
     d.classList.remove('no-js');
-    try { pref = localStorage.getItem('paruto-theme'); } catch (e) {}
+    try { pref = localStorage.getItem('paruto-theme'); depth = localStorage.getItem('paruto-depth'); } catch (e) {}
     var theme = pref === 'light' || pref === 'dark' ? pref : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    depth = depth === 'graphite' || depth === 'oled' ? depth : 'midnight';
     d.setAttribute('data-theme', theme);
     d.setAttribute('data-theme-pref', pref === 'light' || pref === 'dark' ? pref : 'auto');
-    document.getElementById('theme-color').setAttribute('content', theme === 'light' ? '#F5F3EF' : '#080808');
+    d.setAttribute('data-depth', depth);
+    document.getElementById('theme-color').setAttribute('content', theme === 'light' ? '#F5F3EF' : { graphite: '#161618', midnight: '#080808', oled: '#000000' }[depth]);
   })();
 </script>
 </head>
@@ -143,8 +146,11 @@
         <p class="hero__lede">A Nigerian-founded group building media, music, finance and technology ventures — and holding every one of them to the same standard.</p>
         <div class="hero__ctas">
           <a class="btn btn--tint" href="#companies">Explore our companies</a>
-          <a class="btn glass" href="#products">See what we're building <span class="btn__arrow" aria-hidden="true">→</span></a>
+          <a class="btn glass" href="#products">See what we've built <span class="btn__arrow" aria-hidden="true">→</span></a>
         </div>
+        <!-- sync:now-live -->
+    <a class="nowlive glass" href="https://apps.paruto.com/games/anansi-swing-city/" target="_blank" rel="noopener"><span class="nowlive__dot" aria-hidden="true"></span><span class="nowlive__tag">New</span><span class="nowlive__name">Anansi: Swing City</span><span class="nowlive__go">Play now <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5"/></svg></span><span class="sr"> (opens in a new tab)</span></a>
+    <!-- /sync:now-live -->
       </div>
       <div class="hero__stage" aria-hidden="true">
         <svg class="hero__svg" viewBox="-24 -24 413 395">
@@ -167,6 +173,23 @@
 <section class="ticker" aria-hidden="true">
   <div class="ticker__row" data-speed="1" aria-hidden="true"><div class="ticker__track"></div></div>
   <div class="ticker__row" data-speed="-1" aria-hidden="true"><div class="ticker__track"></div></div>
+</section>
+
+<!-- AT A GLANCE (numbers generated from apps.json by scripts/sync-products.mjs) -->
+<section class="section glance" aria-labelledby="glanceTitle">
+  <div class="glance__inner reveal">
+    <header class="glance__head">
+      <p class="eyebrow">Paruto at a glance</p>
+      <h2 class="h2 glance__title" id="glanceTitle">The work, <em>so far.</em></h2>
+    </header>
+    <!-- sync:glance -->
+    <dl class="glance__stats">
+      <div class="stat"><dt>Companies</dt><dd>4</dd></div>
+      <div class="stat"><dt>Products live</dt><dd>7</dd></div>
+      <div class="stat"><dt>In the works</dt><dd>5</dd></div>
+    </dl>
+    <!-- /sync:glance -->
+  </div>
 </section>
 
 <!-- COMPANIES -->
@@ -261,63 +284,154 @@
   </div>
 </section>
 
-<!-- PRODUCTS -->
+<!-- PRODUCTS (generated from apps.json by scripts/sync-products.mjs; edit the catalogue, then re-run the script) -->
 <section class="section section--products" id="products">
-  <header class="section__head section__head--row reveal">
-    <div>
-      <p class="eyebrow">Built by Paruto</p>
-      <h2 class="h2">What we're <em>building.</em></h2>
-    </div>
-    <div class="rail-ctrl" role="group" aria-label="Scroll products">
-      <button class="iconbtn glass" type="button" data-rail="-1" aria-label="Previous product"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
-      <button class="iconbtn glass" type="button" data-rail="1" aria-label="Next product"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-    </div>
+  <header class="section__head reveal">
+    <p class="eyebrow">Built by Paruto</p>
+    <h2 class="h2">What we've <em>shipped.</em></h2>
+    <!-- sync:products-lede -->
+    <p class="lede">12 products designed and built by Paruto. 7 are live today, and you can try every one of them in your browser.</p>
+    <!-- /sync:products-lede -->
   </header>
 
-  <div class="rail" id="rail" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Products">
-    <article class="card on-dark" style="--a:#facc15;--b:#1e40af">
-      <img class="card__img" src="assets/products/investigator-device.jpg" alt="Casefile Africa: the investigator device at a crime scene" loading="lazy" width="1600" height="1000">
-      <div class="card__shade"></div>
-      <div class="card__body">
-        <div class="card__meta"><span class="badge badge--live">Live</span><span>Games · Web</span></div>
-        <h3 class="card__title">Casefile Africa</h3>
-        <p>A 3D detective game: solve crimes and build cases that hold up in court.</p>
-        <a class="btn glass-clear btn--sm" href="https://casefile.paruto.com" target="_blank" rel="noopener" aria-label="Play now: Casefile Africa (opens in a new tab)">Play now <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5"/></svg></a>
+  <div class="showcase">
+    <!-- sync:featured -->
+    <article class="feature on-dark" style="--a:#d4152f;--b:#ffc72c">
+      <img class="feature__img" src="assets/products/apps/anansi-swing-city-large.jpg" alt="Anansi: Swing City: Swinging through Ikoyi–Lekki at night" loading="lazy" decoding="async" width="1600" height="1000">
+      <div class="feature__shade"></div>
+      <div class="feature__body">
+        <p class="feature__new"><span class="badge badge--live">Live</span><span>Newest release</span></p>
+        <h3 class="feature__title">Anansi: Swing City</h3>
+        <p class="feature__line">A 3D web-swinging game: swing across Lagos, London or any city you name, and switch the lights back on.</p>
+        <p class="feature__meta">Games · Web</p>
+        <a class="btn btn--tint" href="https://apps.paruto.com/games/anansi-swing-city/" target="_blank" rel="noopener" aria-label="Play now: Anansi: Swing City (opens in a new tab)">Play now <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5"/></svg></a>
       </div>
     </article>
+    <!-- /sync:featured -->
 
-    <article class="card on-dark" style="--a:#fbbf24;--b:#f43f5e">
-      <img class="card__img" src="assets/products/landing.jpg" alt="Naija Hustle landing screen" loading="lazy" width="1600" height="1000">
-      <div class="card__shade"></div>
-      <img class="card__phone" src="assets/products/mobile-landing.jpg" alt="" loading="lazy" width="647" height="1400">
-      <div class="card__body">
-        <div class="card__meta"><span class="badge">In development</span><span>Games · Web &amp; Mobile</span></div>
-        <h3 class="card__title">Naija Hustle</h3>
-        <p>A multiplayer life simulation set in the streets of Lagos.</p>
-        <a class="btn glass-clear btn--sm" href="https://apps.paruto.com/#/naija-hustle" target="_blank" rel="noopener" aria-label="Explore the app: Naija Hustle (opens in a new tab)">Explore the app <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5"/></svg></a>
-      </div>
-    </article>
+    <!-- sync:grid -->
+    <ul class="pgrid">
+      <li class="pcard" style="--a:#22c55e;--b:#0e7490" data-category="Concepts">
+        <a class="pcard__link" href="https://hyperspeed.paruto.com" target="_blank" rel="noopener">
+          <div class="pcard__art"><img src="assets/products/apps/hyperspeed-rail.webp" alt="Hyperspeed Rail: The network and journey planner" loading="lazy" decoding="async" width="640" height="400"></div>
+          <span class="pcard__body">
+            <span class="pcard__meta"><span class="badge badge--live">Live</span><span>Concepts</span></span>
+            <span class="pcard__name">Hyperspeed Rail</span>
+            <span class="pcard__line">A concept maglev network for Nigeria on real terrain, and a game you can drive.</span>
+            <span class="pcard__go">Play <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5"/></svg><span class="sr"> (opens in a new tab)</span></span>
+          </span>
+        </a>
+      </li>
+      <li class="pcard" style="--a:#22d3ee;--b:#db2777" data-category="Games">
+        <a class="pcard__link" href="https://arclight.paruto.com" target="_blank" rel="noopener">
+          <div class="pcard__art"><img src="assets/products/apps/arclight.webp" alt="ARCLIGHT: Lagos Lagoon" loading="lazy" decoding="async" width="640" height="400"></div>
+          <span class="pcard__body">
+            <span class="pcard__meta"><span class="badge badge--live">Live</span><span>Games</span></span>
+            <span class="pcard__name">ARCLIGHT</span>
+            <span class="pcard__line">An anti-gravity racer for the browser, with every mesh and sound generated in code.</span>
+            <span class="pcard__go">Play <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5"/></svg><span class="sr"> (opens in a new tab)</span></span>
+          </span>
+        </a>
+      </li>
+      <li class="pcard" style="--a:#bef264;--b:#3f6212" data-category="Fitness">
+        <a class="pcard__link" href="https://repwise.paruto.com" target="_blank" rel="noopener">
+          <div class="pcard__art pcard__art--phone"><img src="assets/products/apps/repwise.webp" alt="Repwise: Today&#39;s pick and 31 programs" loading="lazy" decoding="async" width="400" height="866"></div>
+          <span class="pcard__body">
+            <span class="pcard__meta"><span class="badge badge--live">Live</span><span>Fitness</span></span>
+            <span class="pcard__name">Repwise</span>
+            <span class="pcard__line">A fitness app for workouts, timers and nutrition that works offline, with no account.</span>
+            <span class="pcard__go">Open <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5"/></svg><span class="sr"> (opens in a new tab)</span></span>
+          </span>
+        </a>
+      </li>
+      <li class="pcard" style="--a:#facc15;--b:#1e40af" data-category="Games">
+        <a class="pcard__link" href="https://casefile.paruto.com" target="_blank" rel="noopener">
+          <div class="pcard__art"><img src="assets/products/apps/casefile-africa.webp" alt="Casefile Africa: The investigator device and case file" loading="lazy" decoding="async" width="640" height="400"></div>
+          <span class="pcard__body">
+            <span class="pcard__meta"><span class="badge badge--live">Live</span><span>Games</span></span>
+            <span class="pcard__name">Casefile Africa</span>
+            <span class="pcard__line">A 3D detective game: solve crimes and build cases that hold up in court.</span>
+            <span class="pcard__go">Play <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5"/></svg><span class="sr"> (opens in a new tab)</span></span>
+          </span>
+        </a>
+      </li>
+      <li class="pcard" style="--a:#d4a94a;--b:#7a5414" data-category="Media">
+        <a class="pcard__link" href="https://galleries.paruto.com" target="_blank" rel="noopener">
+          <div class="pcard__art"><img src="assets/products/apps/paruto-galleries.webp" alt="Paruto Galleries: Your stories, delivered with care" loading="lazy" decoding="async" width="640" height="400"></div>
+          <span class="pcard__body">
+            <span class="pcard__meta"><span class="badge badge--live">Live</span><span>Media</span></span>
+            <span class="pcard__name">Paruto Galleries</span>
+            <span class="pcard__line">Your stories, delivered with care: private photo and film galleries from Paruto Media.</span>
+            <span class="pcard__go">Open <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5"/></svg><span class="sr"> (opens in a new tab)</span></span>
+          </span>
+        </a>
+      </li>
+      <li class="pcard" style="--a:#34d399;--b:#38bdf8" data-category="Kids &amp; Learning">
+        <a class="pcard__link" href="https://play.parutokids.com" target="_blank" rel="noopener">
+          <div class="pcard__art"><img src="assets/products/apps/paruto-kids-world.webp" alt="Paruto Kids World: The village square with the family" loading="lazy" decoding="async" width="640" height="400"></div>
+          <span class="pcard__body">
+            <span class="pcard__meta"><span class="badge badge--live">Live</span><span>Kids &amp; Learning</span></span>
+            <span class="pcard__name">Paruto Kids World</span>
+            <span class="pcard__line">An illustrated village where little ones learn and play with Jas, Jay and baby Joe.</span>
+            <span class="pcard__go">Open <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5"/></svg><span class="sr"> (opens in a new tab)</span></span>
+          </span>
+        </a>
+      </li>
+    </ul>
+    <!-- /sync:grid -->
 
-    <article class="card on-dark" style="--a:#34d399;--b:#38bdf8">
-      <img class="card__img" src="assets/products/kids-village.jpg" alt="Paruto Kids World: the village square with the family" loading="lazy" width="1600" height="1000">
-      <div class="card__shade"></div>
-      <div class="card__body">
-        <div class="card__meta"><span class="badge badge--live">Live</span><span>Kids &amp; Learning · Web</span></div>
-        <h3 class="card__title">Paruto Kids World</h3>
-        <p>An illustrated village where little ones learn and play with Jas, Jay and baby Joe.</p>
-        <a class="btn glass-clear btn--sm" href="https://play.parutokids.com" target="_blank" rel="noopener" aria-label="Play now: Paruto Kids World (opens in a new tab)">Play now <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5"/></svg></a>
-      </div>
-    </article>
+    <div class="works-wrap reveal">
+      <h3 class="works__title">In the works</h3>
+      <!-- sync:works -->
+    <ul class="works">
+      <li class="work" style="--a:#3ddc97;--b:#065f46">
+        <span class="work__mono" aria-hidden="true">I</span>
+        <span class="work__main"><span class="work__name">Ivra</span><span class="work__line">Mobile-first accounting for invoices, payments, expenses and project profitability.</span></span>
+        <span class="work__side"><span class="badge">Beta</span><span class="work__cat">Finance</span><a class="link" href="https://ivra.paruto.com" target="_blank" rel="noopener" aria-label="Try the beta: Ivra (opens in a new tab)">Try the beta <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5"/></svg></a></span>
+      </li>
+      <li class="work" style="--a:#a855c8;--b:#6b2c7c">
+        <span class="work__mono" aria-hidden="true">B</span>
+        <span class="work__main"><span class="work__name">Bidplum</span><span class="work__line">AI bid management: turn any tender into a compliance matrix and a winning proposal.</span></span>
+        <span class="work__side"><span class="badge">In development</span><span class="work__cat">Business</span></span>
+      </li>
+      <li class="work" style="--a:#c0507f;--b:#5b1f4a">
+        <span class="work__mono" aria-hidden="true">M</span>
+        <span class="work__main"><span class="work__name">My Mama</span><span class="work__line">A private women&#39;s-health companion, experienced as a warm 3D village.</span></span>
+        <span class="work__side"><span class="badge">In development</span><span class="work__cat">Health</span></span>
+      </li>
+      <li class="work" style="--a:#fbbf24;--b:#f43f5e">
+        <span class="work__mono" aria-hidden="true">N</span>
+        <span class="work__main"><span class="work__name">Naija Hustle</span><span class="work__line">A multiplayer life simulation set in the streets of Lagos.</span></span>
+        <span class="work__side"><span class="badge">In development</span><span class="work__cat">Games</span></span>
+      </li>
+      <li class="work" style="--a:#818cf8;--b:#312e81">
+        <span class="work__mono" aria-hidden="true">C</span>
+        <span class="work__main"><span class="work__name">ChurchSense</span><span class="work__line">Turn attendance, giving, follow-up and ministry data into clear insights and action.</span></span>
+        <span class="work__side"><span class="badge">Coming soon</span><span class="work__cat">Ministry</span></span>
+      </li>
+    </ul>
+    <!-- /sync:works -->
+    </div>
 
-    <a class="card card--more" href="https://apps.paruto.com" target="_blank" rel="noopener">
-      <span class="card--more__inner">
-        <span class="appgrid" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-        <span class="card__title">See every app</span>
-        <span class="link">apps.paruto.com <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5"/></svg></span>
-      </span>
-    </a>
+    <p class="showcase__all"><a class="btn glass" href="https://apps.paruto.com" target="_blank" rel="noopener" aria-label="See every app on apps.paruto.com (opens in a new tab)">See every app on apps.paruto.com <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5"/></svg></a></p>
   </div>
-  <div class="dots" id="dots" role="group" aria-label="Choose a product"></div>
+</section>
+
+<!-- HOW WE BUILD -->
+<section class="section craft" id="craft" aria-labelledby="craftTitle">
+  <header class="section__head reveal">
+    <p class="eyebrow">How we build</p>
+    <h2 class="h2" id="craftTitle">One standard, <em>every product.</em></h2>
+    <p class="lede">Every Paruto company and product is held to the same bar, from the first page you see to the last setting you change.</p>
+  </header>
+  <ul class="craft__grid">
+    <li class="craft__item reveal"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="3" width="14" height="26" rx="3.5"/><path d="M14 25h4"/></svg><h3>Designed to Apple's guidelines</h3><p>Clear hierarchy, 44-point touch targets, real dark mode and controls that behave the way you expect.</p></li>
+    <li class="craft__item reveal"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 23a11 11 0 1 1 22 0"/><path d="m16 23 6-8"/></svg><h3>Fast on any phone</h3><p>Pages are built to a performance budget. Rich 3D and motion load after the page is ready, never in your way.</p></li>
+    <li class="craft__item reveal"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 6 7v8c0 6.6 4.3 11.7 10 14 5.7-2.3 10-7.4 10-14V7z"/><path d="m11.5 16 3 3 6-6.5"/></svg><h3>Private by default</h3><p>Cookieless analytics and no advertising trackers. We collect only what a feature needs to work.</p></li>
+    <li class="craft__item reveal"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11"/><path d="M16 5a11 11 0 0 0 0 22z" class="fill"/></svg><h3>Light, dark and yours</h3><p>Every product follows your system appearance, and lets you choose light, dark and how dark it gets.</p></li>
+    <li class="craft__item reveal"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="7" r="2.6"/><path d="M7 12h18M16 12v8m0 0-4.5 8M16 20l4.5 8"/></svg><h3>Accessible to everyone</h3><p>Screen readers, keyboards, larger text, Reduce Motion and Increase Contrast are designed in, not bolted on.</p></li>
+    <li class="craft__item reveal"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 27 9.5v13L16 29 5 22.5v-13z"/><path d="M5 9.5 16 16l11-6.5M16 16v13"/></svg><h3>Crafted in 3D</h3><p>WebGL and motion are used where they add delight: a hero you fly through, worlds you explore, moments worth celebrating.</p></li>
+  </ul>
 </section>
 
 <!-- THE MARK -->
@@ -441,13 +555,20 @@
   <div class="footer__base">
     <span>© <span id="year">2026</span> Paruto. All rights reserved. <a class="footer__privacy" href="/privacy.html">Privacy</a></span>
     <div class="appearance">
-      <span id="appearance-label">Appearance</span>
+      <span class="appearance__group"><span id="appearance-label">Appearance</span>
       <div class="seg" role="radiogroup" aria-labelledby="appearance-label">
         <span class="seg__thumb" aria-hidden="true"></span>
         <button type="button" role="radio" data-pref="auto" aria-checked="true">Auto</button>
         <button type="button" role="radio" data-pref="light" aria-checked="false">Light</button>
         <button type="button" role="radio" data-pref="dark" aria-checked="false">Dark</button>
-      </div>
+      </div></span>
+      <span class="appearance__group" id="depth-group"><span id="depth-label" class="depth-label">Depth</span>
+      <div class="seg seg--depth" role="radiogroup" aria-labelledby="depth-label" id="depth-seg">
+        <span class="seg__thumb" aria-hidden="true"></span>
+        <button type="button" role="radio" data-depth="graphite" aria-checked="false">Graphite</button>
+        <button type="button" role="radio" data-depth="midnight" aria-checked="true">Midnight</button>
+        <button type="button" role="radio" data-depth="oled" aria-checked="false">OLED</button>
+      </div></span>
     </div>
   </div>
 </footer>
