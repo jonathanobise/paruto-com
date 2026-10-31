@@ -861,6 +861,55 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
   .lab__line{font-size:1.06rem}
 }
 
+/* Paruto Media: development and strategic communication */
+.media__head{display:grid;gap:var(--s3);margin-bottom:clamp(40px,7vh,64px)}
+.media__lockup{width:clamp(180px,22vw,240px);height:auto;margin-bottom:var(--s1)}
+.media__head .lede{max-width:46em}
+.media__band{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:var(--s4) clamp(32px,5vw,72px);align-items:end;padding:var(--s4) 0;
+  border-block:1px solid var(--separator);margin-bottom:var(--s4)}
+.media__figs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.45fr);margin:0}
+.media__figs div{display:flex;flex-direction:column-reverse;justify-content:flex-end;gap:10px;padding-right:var(--s2)}
+.media__figs div+div{padding-left:var(--s3);border-left:1px solid var(--separator)}
+.media__figs dt{font-family:var(--cond);font-weight:500;font-size:var(--t-footnote);letter-spacing:.2em;text-transform:uppercase;color:var(--label-3)}
+.media__figs dd{margin:0;font-family:var(--serif);font-style:italic;font-weight:400;line-height:.9;font-size:clamp(2.6rem,4.2vw,4.3rem);font-variant-numeric:lining-nums;
+  background:var(--tint-grad-text);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.08em;width:max-content}
+.media__for{margin:0;display:grid;gap:10px;color:var(--label);font-size:var(--t-subhead);line-height:1.6}
+.media__for span{font-family:var(--cond);font-weight:500;font-size:var(--t-caption);letter-spacing:.24em;text-transform:uppercase;color:var(--label-3)}
+.media__pillars{list-style:none;margin:0 0 var(--s4);padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;border-radius:var(--r-lg);overflow:hidden;
+  background:var(--separator);box-shadow:inset 0 0 0 1px var(--separator)}
+.pillar{display:grid;gap:10px;align-content:start;padding:clamp(24px,2.6vw,34px);background:var(--bg-2)}
+.pillar h3{margin:0;font-family:var(--cond);font-weight:600;font-size:1.25rem;line-height:1.15;letter-spacing:.05em;text-transform:uppercase}
+.pillar p{margin:0;color:var(--label-2);font-size:var(--t-subhead);line-height:1.55}
+.media__proof{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:var(--s2);margin-bottom:var(--s4)}
+.mwork{display:flex;flex-direction:column;gap:12px;padding:clamp(28px,3.4vw,48px);border-radius:var(--r-lg);background:var(--bg-elev);border:1px solid var(--separator)}
+.mwork__title{margin:0;font-family:var(--cond);font-weight:700;font-size:clamp(1.7rem,2.8vw,2.4rem);line-height:1.02;text-transform:uppercase}
+.mwork__title em{display:block;margin-top:6px;font-family:var(--serif);font-style:italic;font-weight:400;text-transform:none;font-size:.86em;color:var(--tint-text)}
+.mwork p:not(.eyebrow){margin:0;color:var(--label-2);font-size:var(--t-subhead);line-height:1.6}
+.mwork .link{margin-top:auto}
+.mquote{margin:0;display:flex;flex-direction:column;justify-content:space-between;gap:var(--s3);padding:clamp(28px,3.4vw,48px);border-radius:var(--r-lg);
+  background:radial-gradient(circle at 20% 0%,rgba(201,149,42,.14),transparent 60%),var(--bg-2);border:1px solid var(--separator)}
+.mquote blockquote{margin:0}
+.mquote blockquote p{margin:0;font-family:var(--serif);font-style:italic;font-size:clamp(1.6rem,2.6vw,2.2rem);line-height:1.2;color:var(--label)}
+.mquote blockquote p::before{content:"“";display:block;font-size:2.4em;line-height:.6;margin-bottom:.1em;color:var(--tint-text)}
+.mquote figcaption{font-family:var(--cond);font-weight:600;font-size:var(--t-footnote);letter-spacing:.18em;text-transform:uppercase;color:var(--label)}
+.mquote figcaption span{color:var(--label-3)}
+.media__ready{display:grid;gap:var(--s2);margin-bottom:var(--s4)}
+.ready{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.ready li{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:var(--cap);border:1px solid var(--separator);background:var(--fill);
+  color:var(--label-2);font-size:var(--t-footnote)}
+.ready li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--tint)}
+.media__cta{display:flex;flex-wrap:wrap;gap:12px;margin:0}
+@media (max-width:1000px){
+  .media__band{grid-template-columns:minmax(0,1fr)}
+  .media__pillars{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .media__proof{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:560px){
+  .media__figs{grid-template-columns:minmax(0,1fr)}
+  .media__figs div{flex-direction:row-reverse;justify-content:space-between;align-items:baseline;padding:var(--s2) 0!important;border-left:0!important}
+  .media__figs div+div{border-top:1px solid var(--separator)}
+  .media__pillars{grid-template-columns:minmax(0,1fr)}
+}
 /* What we can build: each capability with the live products that prove it */
 .caps__grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s2)}
 @media (max-width:1000px){.caps__grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -917,12 +966,13 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
    everything, so jumps land exactly. The companies section only joins below 1001px: its chapters are pinned and placed
    from scroll measurements. Never add a section whose decoration paints outside its box (the contact glow, the footer's
    giant wordmark): skipping also clips to the box, which cut the wordmark's ends off on wide windows. */
-:root:not(.cv-all) :is(.glance,#products,#capabilities,#platform,#craft,#mark,.principles){content-visibility:auto;contain-intrinsic-size:auto var(--cis,900px)}
+:root:not(.cv-all) :is(.glance,#media,#products,#capabilities,#platform,#craft,#mark,.principles){content-visibility:auto;contain-intrinsic-size:auto var(--cis,900px)}
 .glance{--cis:380px}
 #products{--cis:2800px}
 #craft{--cis:1000px}
 #mark{--cis:1300px}
 .principles{--cis:450px}
+#media{--cis:2000px}
 #capabilities{--cis:1300px}
 #platform{--cis:1000px}
 /* six section links: tighter spacing where the full bar is narrow, so the logo, links and Get in touch all fit */
@@ -933,4 +983,4 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
 }
 /* Below 1001px the companies are a plain grid (chapters need a wider window), so they can wait too. */
 @media (max-width:1000px){:root:not(.cv-all) #companies{content-visibility:auto;contain-intrinsic-size:auto 3000px}}
-@media (max-width:700px){#capabilities{--cis:2900px}#platform{--cis:1900px}#products{--cis:4600px}#craft{--cis:1750px}#mark{--cis:1450px}.principles{--cis:650px}}
+@media (max-width:700px){#media{--cis:3600px}#capabilities{--cis:2900px}#platform{--cis:1900px}#products{--cis:4600px}#craft{--cis:1750px}#mark{--cis:1450px}.principles{--cis:650px}}
