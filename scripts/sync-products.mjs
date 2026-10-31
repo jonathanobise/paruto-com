@@ -4,7 +4,7 @@
 //   node scripts/sync-products.mjs [path/to/paruto-apps]     (default: ../paruto-apps)
 //
 // Rewrites the blocks between <!-- sync:NAME --> and <!-- /sync:NAME --> markers in index.html
-// (now-live chip, at-a-glance numbers, featured product, product grid, in-the-works list) and copies
+// (now-live chip, at-a-glance numbers, featured product, product grid, coming-soon list, sealed lab cards) and copies
 // each app's small WebP screenshot into assets/products/apps/. Copy only what the catalogue says:
 // names, taglines, categories, statuses and links come straight from apps.json, never invented here.
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync, readdirSync, rmSync } from "node:fs";
@@ -48,6 +48,11 @@ const works = apps.filter((a) => a.status !== "live").sort((x, y) =>
 const featured = live[0];
 const grid = live.slice(1);
 const companies = 4; // Media, Music, Capital, Kids (Technology is the products themselves)
+// Unannounced projects are shown sealed ("In the lab"): codename and teaser line only, never a link
+const SEALED = "Unannounced";
+const coming = works.filter((a) => a.category !== SEALED);
+const lab = works.filter((a) => a.category === SEALED);
+const categories = new Set(apps.filter((a) => a.category && a.category !== SEALED).map((a) => a.category)).size;
 
 const meta = (a) => [a.category, (a.platforms || []).join(" & ")].filter(Boolean).map(esc).join(" · ");
 // accessible names start with the visible text (voice control users say what they see)
@@ -88,6 +93,14 @@ function cardHTML(a) {
         </a>
       </li>`;
 }
+const SEAL = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+function labHTML(a) {
+  return `<li class="lab" style="${tone(a)}">
+        <span class="lab__seal">${SEAL}</span>
+        <span class="lab__name">${esc(a.name)}</span>
+        <span class="lab__line">${esc(a.tagline)}</span>
+      </li>`;
+}
 function workHTML(a) {
   const st = STATUS[a.status] || a.status;
   const go = a.url && a.status === "beta" ? `<a class="link" href="${esc(a.url)}" target="_blank" rel="noopener" aria-label="Try the beta: ${esc(a.name)} (opens in a new tab)">Try the beta ${ARROW}</a>` : "";
@@ -104,6 +117,7 @@ const glance = `<dl class="glance__stats">
       <div class="stat"><dt>Companies</dt><dd>${companies}</dd></div>
       <div class="stat"><dt>Products live</dt><dd>${live.length}</dd></div>
       <div class="stat"><dt>In the works</dt><dd>${works.length}</dd></div>
+      <div class="stat"><dt>Categories</dt><dd>${categories}</dd></div>
     </dl>`;
 const lede = `${apps.length} products designed and built by Paruto. ${live.length} are live today, and you can try every one of them in your browser.`;
 
@@ -113,7 +127,16 @@ const blocks = {
   "products-lede": `<p class="lede">${esc(lede)}</p>`,
   featured: featured ? featuredHTML(featured) : "",
   grid: `<ul class="pgrid">\n      ${grid.map(cardHTML).join("\n      ")}\n    </ul>`,
-  works: works.length ? `<ul class="works">\n      ${works.map(workHTML).join("\n      ")}\n    </ul>` : "",
+  works: coming.length ? `<ul class="works">\n      ${coming.map(workHTML).join("\n      ")}\n    </ul>` : "",
+  lab: lab.length ? `<div class="lab-wrap reveal">
+      <header class="lab-head">
+        <p class="works__title">In the lab</p>
+        <p class="lab-head__line">${lab.length} more projects in development, kept under codenames until they're ready.</p>
+      </header>
+      <ul class="labs">
+      ${lab.map(labHTML).join("\n      ")}
+      </ul>
+    </div>` : "",
 };
 
 let html = readFileSync(join(root, "index.html"), "utf8");
@@ -123,4 +146,4 @@ for (const [name, body] of Object.entries(blocks)) {
   html = html.replace(re, `$1\n    ${body}\n    $2`);
 }
 writeFileSync(join(root, "index.html"), html);
-console.log(`✓ ${apps.length} products · ${live.length} live (featured: ${featured?.name}) · ${works.length} in the works · ${readdirSync(OUT).length} images copied`);
+console.log(`✓ ${apps.length} products · ${live.length} live (featured: ${featured?.name}) · ${coming.length} coming · ${lab.length} in the lab · ${categories} categories · ${readdirSync(OUT).length} images copied`);
