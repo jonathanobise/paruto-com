@@ -875,6 +875,13 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
   background:var(--tint-grad-text);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.08em;width:max-content}
 .media__for{margin:0;display:grid;gap:10px;color:var(--label);font-size:var(--t-subhead);line-height:1.6}
 .media__for span{font-family:var(--cond);font-weight:500;font-size:var(--t-caption);letter-spacing:.24em;text-transform:uppercase;color:var(--label-3)}
+.media__clients{display:grid;gap:var(--s2);margin-bottom:var(--s4)}
+.clients{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:1px;border-radius:var(--r-md);overflow:hidden;
+  background:var(--separator);box-shadow:inset 0 0 0 1px var(--separator)}
+.clients li{display:grid;gap:6px;align-content:center;min-height:112px;padding:var(--s2) var(--s3);background:var(--bg-2)}
+.clients b{font-family:var(--cond);font-weight:700;font-size:clamp(1.35rem,1.8vw,1.6rem);line-height:1;letter-spacing:.06em;text-transform:uppercase;color:var(--label)}
+.clients span{font-size:var(--t-caption);line-height:1.35;color:var(--label-3)}
+@media (max-width:560px){.clients{grid-template-columns:repeat(2,minmax(0,1fr))}.clients li{min-height:96px;padding:var(--s2)}.clients li:last-child:nth-child(odd){grid-column:span 2}}
 .media__pillars{list-style:none;margin:0 0 var(--s4);padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;border-radius:var(--r-lg);overflow:hidden;
   background:var(--separator);box-shadow:inset 0 0 0 1px var(--separator)}
 .pillar{display:grid;gap:10px;align-content:start;padding:clamp(24px,2.6vw,34px);background:var(--bg-2)}
@@ -972,7 +979,7 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
 #craft{--cis:1000px}
 #mark{--cis:1300px}
 .principles{--cis:450px}
-#media{--cis:2000px}
+#media{--cis:2150px}
 #capabilities{--cis:1300px}
 #platform{--cis:1000px}
 /* six section links: tighter spacing where the full bar is narrow, so the logo, links and Get in touch all fit */
@@ -983,4 +990,4 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
 }
 /* Below 1001px the companies are a plain grid (chapters need a wider window), so they can wait too. */
 @media (max-width:1000px){:root:not(.cv-all) #companies{content-visibility:auto;contain-intrinsic-size:auto 3000px}}
-@media (max-width:700px){#media{--cis:3600px}#capabilities{--cis:2900px}#platform{--cis:1900px}#products{--cis:4600px}#craft{--cis:1750px}#mark{--cis:1450px}.principles{--cis:650px}}
+@media (max-width:700px){#media{--cis:4000px}#capabilities{--cis:2900px}#platform{--cis:1900px}#products{--cis:4600px}#craft{--cis:1750px}#mark{--cis:1450px}.principles{--cis:650px}}
