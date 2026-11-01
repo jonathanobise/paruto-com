@@ -879,10 +879,11 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
 /* a wall that flows: rows fill edge to edge whatever the count, so there's never an empty cell */
 .clients{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:1px;border-radius:var(--r-md);overflow:hidden;
   background:var(--separator);box-shadow:inset 0 0 0 1px var(--separator)}
-.clients li{flex:1 1 200px;display:grid;gap:6px;align-content:center;min-height:112px;padding:var(--s2) var(--s3);background:var(--bg-2)}
+.clients li{flex:1 1 calc(33.333% - 1px);display:grid;gap:6px;align-content:center;min-height:112px;padding:var(--s2) var(--s3);background:var(--bg-2)}
 .clients b{font-family:var(--cond);font-weight:700;font-size:clamp(1.35rem,1.8vw,1.6rem);line-height:1;letter-spacing:.06em;text-transform:uppercase;color:var(--label)}
 .clients span{font-size:var(--t-caption);line-height:1.35;color:var(--label-3)}
-@media (max-width:560px){.clients li{flex-basis:140px;min-height:96px;padding:var(--s2)}}
+@media (min-width:1001px){.clients li{flex-basis:calc(16.666% - 1px)}}   /* six a row on wide screens, three on tablets, two on phones */
+@media (max-width:560px){.clients li{flex-basis:calc(50% - 1px);min-height:96px;padding:var(--s2)}}
 .media__pillars{list-style:none;margin:0 0 var(--s4);padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;border-radius:var(--r-lg);overflow:hidden;
   background:var(--separator);box-shadow:inset 0 0 0 1px var(--separator)}
 .pillar{display:grid;gap:10px;align-content:start;padding:clamp(24px,2.6vw,34px);background:var(--bg-2)}
