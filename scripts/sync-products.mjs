@@ -126,14 +126,15 @@ const blocks = {
   glance,
   "products-lede": `<p class="lede">${esc(lede)}</p>`,
   featured: featured ? featuredHTML(featured) : "",
-  grid: `<ul class="pgrid">\n      ${grid.map(cardHTML).join("\n      ")}\n    </ul>`,
+  // wide screens: the column count (3, 4 or 5) that leaves the fewest gaps in the last row
+  grid: `<ul class="pgrid" style="--cols:${[4, 5, 3].reduce((b, c) => ((c - grid.length % c) % c < (b - grid.length % b) % b ? c : b))}">\n      ${grid.map(cardHTML).join("\n      ")}\n    </ul>`,
   works: coming.length ? `<ul class="works">\n      ${coming.map(workHTML).join("\n      ")}\n    </ul>` : "",
   lab: lab.length ? `<div class="lab-wrap reveal">
       <header class="lab-head">
         <p class="works__title">In the lab</p>
         <p class="lab-head__line">${lab.length} more projects in development, kept under codenames until they're ready.</p>
       </header>
-      <ul class="labs">
+      <ul class="labs" style="--cols:${[4, 3, 5].reduce((b, c) => ((c - lab.length % c) % c < (b - lab.length % b) % b ? c : b))}">
       ${lab.map(labHTML).join("\n      ")}
       </ul>
     </div>` : "",
