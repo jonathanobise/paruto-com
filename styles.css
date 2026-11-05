@@ -210,7 +210,10 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:100;op
 .gl-ready .hero__svg{opacity:0!important}
 .hero__eyebrow{display:flex;flex-wrap:wrap;gap:.5em 1.4em}
 .hero__eyebrow span{position:relative}
-.hero__eyebrow span+span::before{content:"";position:absolute;left:calc(-.87em - 2px);top:50%;width:4px;height:4px;margin-top:-2px;border-radius:50%;background:var(--label-3)}
+.hero__eyebrow span+span::before,.hero__eyebrow .hero__br+span::before{content:"";position:absolute;left:calc(-.87em - 2px);top:50%;width:4px;height:4px;margin-top:-2px;border-radius:50%;background:var(--label-3)}
+/* five names: one line where they fit; on phones two balanced lines (a break after Finance), and the line that starts after the break has no leading dot */
+.hero__br{display:none}
+@media (max-width:560px){.hero__br{display:block;flex-basis:100%;height:0}.hero__eyebrow .hero__br+span::before{display:none}}
 .hero__title{margin:clamp(14px,2.4vh,24px) 0 clamp(16px,3vh,28px);line-height:.86;display:flex;flex-direction:column;align-items:flex-start}
 .hero__think{font-family:var(--cond);font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:clamp(3.6rem,8.6vw,9.6rem)}
 .hero__poss{font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(3.4rem,8.2vw,9.2rem);margin:-.06em 0 0 -.04em;padding:0 .08em .12em 0;

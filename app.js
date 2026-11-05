@@ -198,10 +198,11 @@
   /* ---- ventures ticker: two rows drifting in opposite directions; scroll speed pushes them along ---- */
   const rows = $$('.ticker__row');
   if (rows.length) {
-    const words = [['Media', ''], ['Music', 'serif'], ['Capital', 'ghost'], ['Technology', ''], ['Media', 'ghost'], ['Music', ''], ['Capital', 'serif'], ['Technology', 'ghost']];
+    const words = [['Media', ''], ['Technology', 'serif'], ['Finance', 'ghost'], ['Education', ''], ['Music', 'serif'],
+      ['Media', 'ghost'], ['Technology', ''], ['Finance', 'serif'], ['Education', 'ghost'], ['Music', '']];
     const mark = '<svg class="ticker__mark" viewBox="-24 -24 413 395"><use class="pd" href="#pd" fill="url(#gold)"/></svg>';
     rows.forEach((row, ri) => {
-      const set = (ri ? words.slice(4).concat(words.slice(0, 4)) : words)
+      const set = (ri ? words.slice(5).concat(words.slice(0, 5)) : words)
         .map(([w, k]) => `<span class="ticker__word${k ? ' ticker__word--' + k : ''}">${w}</span>${mark}`).join('');
       row.firstElementChild.innerHTML = set + set;   // two copies so the loop is seamless
     });
