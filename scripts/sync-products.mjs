@@ -123,6 +123,7 @@ const lede = `${apps.length} products designed and built by Paruto. ${live.lengt
 
 const blocks = {
   "now-live": nowLive,
+  "tech-facts": `<ul class="tile__facts"><li>${apps.length} products</li><li>${live.length} live today</li><li>${categories} categories</li></ul>`,
   glance,
   "products-lede": `<p class="lede">${esc(lede)}</p>`,
   featured: featured ? featuredHTML(featured) : "",
