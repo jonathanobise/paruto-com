@@ -105,11 +105,21 @@
     links.forEach(a => a.hash === '#' + id ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current'));
     placePill();
   };
-  const sections = ['companies', 'products', 'mark', 'contact'].map(id => document.getElementById(id));
-  const spy = new IntersectionObserver(entries => {
-    entries.forEach(en => { if (en.isIntersecting) setCurrent(en.target.id); });
-  }, { rootMargin: '-45% 0px -50% 0px' });
-  sections.forEach(s => spy.observe(s));
+  // Each menu item covers its stretch of the page, from its section to the next item's: Companies takes in Paruto
+  // Media, Capabilities the platform and How we build, About the principles, Contact the footer. Above Companies
+  // nothing is lit. Worked out from the scroll position on each frame that scrolls, so a jump never leaves a stale item.
+  const starts = links.map(a => a.hash && document.getElementById(a.hash.slice(1))).filter(Boolean);
+  const spot = () => {
+    const line = innerHeight * .45;
+    let id = null;
+    for (const s of starts) if (s.getBoundingClientRect().top <= line) id = s.id;
+    if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) id = starts.at(-1)?.id ?? id;   // the foot of the page
+    if (id !== current) setCurrent(id);
+  };
+  let spotting = 0;
+  addEventListener('scroll', () => { spotting ||= requestAnimationFrame(() => { spotting = 0; spot(); }); }, { passive: true });
+  addEventListener('resize', spot);
+  spot();
 
   /* ---- Liquid Glass: specular highlight tracks the pointer ---- */
   if (finePointer) $$('.glass, .glass-clear').forEach(el => el.addEventListener('pointermove', e => {
