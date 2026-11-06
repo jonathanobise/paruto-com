@@ -610,7 +610,9 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
 .seg--depth .seg__thumb{width:calc((100% - 6px) / 3)}
 
 /* ---------- press feedback: ripple from the touch point (the dip is each control's own :active scale) ---------- */
-.has-ripple{position:relative;overflow:hidden;isolation:isolate}
+/* :where() keeps this at zero specificity, so a control's own position wins (Back to top is fixed; given relative, it
+   dropped to the foot of the page after its first press) */
+:where(.has-ripple){position:relative;overflow:hidden;isolation:isolate}
 .ripple{position:absolute;border-radius:50%;pointer-events:none;z-index:3;background:radial-gradient(circle,rgba(255,255,255,.32) 0,rgba(255,255,255,.12) 40%,transparent 70%);
   transform:scale(0);animation:ripple .55s var(--ease-out) forwards}
 .btn--tint .ripple{background:radial-gradient(circle,rgba(255,255,255,.5) 0,rgba(255,255,255,.18) 40%,transparent 70%)}
@@ -974,23 +976,25 @@ a.brandrow:hover .brandrow__go{transform:translate(2px,-2px)}
 .brandrow--soon .brandrow__mark{opacity:.4}
 .brandrow--soon small{color:var(--label-3);font-family:var(--cond);font-weight:500;letter-spacing:.2em;text-transform:uppercase;font-size:var(--t-caption)}
 .tile__theme{margin:0 0 12px!important;padding:0!important}
-/* Finance: Capital's free courses beside Ivra's payroll screen, then what's coming (Capital never shows a chart or returns) */
-.stage--finance{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:clamp(14px,2vw,24px);padding:clamp(20px,5%,44px)}
+/* Finance: Capital's free courses and TapeSensei's discipline score beside Ivra's payroll screen: real work only, so
+   nothing next to Capital reads as returns (Capital never shows a chart, a P&L or returns) */
+.stage--finance{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);grid-template-areas:"cap ivra" "ts ivra";align-content:center;gap:clamp(16px,2.4vh,28px) clamp(14px,2vw,24px);padding:clamp(20px,5%,44px)}
 .fin__label{display:block;font-family:var(--cond);font-weight:600;font-size:var(--t-caption);letter-spacing:.22em;text-transform:uppercase;color:var(--label-3)}
-.fin__capital{align-self:center;display:grid;gap:12px;min-width:0}
+.fin__capital{grid-area:cap;display:grid;gap:10px;min-width:0}
+.fin__ts{grid-area:ts;display:grid;gap:10px;min-width:0}
+.fin__card{aspect-ratio:860/315;border-radius:calc(var(--r-lg) - 20px);background:#000}
+.chapters-on .stage--finance .courses li{padding-block:clamp(10px,1.6vh,20px)}
 .stage--finance .courses li{grid-template-columns:auto 1fr}
 .stage--finance .courses li:nth-child(n){margin-left:0}
-.fin__ivra{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:0}
+.fin__ivra{grid-area:ivra;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:0}
 .fin__phone{height:clamp(220px,30vw,340px);width:auto;aspect-ratio:640/1385;max-width:100%;border-radius:22px}
-.chapters-on .fin__phone{height:min(calc(min(100vh - 210px,720px) - 236px),420px)}
-.fin__soon{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0;padding:12px 18px;border-radius:var(--cap);border:1px dashed var(--label-4)}
-.fin__soon b{font-family:var(--cond);font-weight:600;font-size:var(--t-footnote);letter-spacing:.16em;text-transform:uppercase;color:var(--label-2)}
-.fin__soon small{font-family:var(--cond);font-weight:500;font-size:var(--t-caption);letter-spacing:.2em;text-transform:uppercase;color:var(--label-3)}
+.chapters-on .fin__phone{height:min(calc(min(100vh - 210px,720px) - 190px),400px)}
 /* short windows: chapters keep every line of Finance and Education inside the card */
 @media (max-height:800px){.chapters-on .brandrow{min-height:46px;padding-block:3px}}
 .chapters-on .tile__theme,.chapters-on .tile--finance .tile__copy>.eyebrow{display:none}   /* the index bar above already names the area */
 @media (max-width:860px){.stage.stage--finance{aspect-ratio:auto}}
-@media (max-width:560px){.stage--finance{grid-template-columns:minmax(0,1fr) auto}.fin__phone{height:210px}.fin__ivra .fin__label{max-width:9em;text-align:center}.stage--finance .courses li{padding:12px 14px}}
+@media (min-width:561px) and (max-width:1000px){.fin__phone{height:auto;width:min(100%,170px)}}
+@media (max-width:560px){.stage--finance{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"cap ivra" "ts ts"}.fin__phone{height:210px}.fin__ivra .fin__label{max-width:9em;text-align:center}.stage--finance .courses li{padding:12px 14px}}
 /* Technology: a fanned deck of real product screens */
 .stage--tech .shot{position:absolute;aspect-ratio:16/10;height:auto;transition:transform 1s var(--spring)}
 .stage--tech .shot--d1{width:54%;left:4%;top:9%;transform:rotate(-4deg);filter:brightness(.82)}
