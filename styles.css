@@ -987,8 +987,8 @@ a.brandrow:hover .brandrow__go{transform:translate(2px,-2px)}
 .fin__soon b{font-family:var(--cond);font-weight:600;font-size:var(--t-footnote);letter-spacing:.16em;text-transform:uppercase;color:var(--label-2)}
 .fin__soon small{font-family:var(--cond);font-weight:500;font-size:var(--t-caption);letter-spacing:.2em;text-transform:uppercase;color:var(--label-3)}
 /* short windows: chapters keep every line of Finance and Education inside the card */
-@media (max-height:800px){.chapters-on .brandrow{min-height:48px;padding-block:4px}}
-.chapters-on .tile__theme{display:none}   /* the index bar above already names the area */
+@media (max-height:800px){.chapters-on .brandrow{min-height:46px;padding-block:3px}}
+.chapters-on .tile__theme,.chapters-on .tile--finance .tile__copy>.eyebrow{display:none}   /* the index bar above already names the area */
 @media (max-width:860px){.stage.stage--finance{aspect-ratio:auto}}
 @media (max-width:560px){.stage--finance{grid-template-columns:minmax(0,1fr) auto}.fin__phone{height:210px}.fin__ivra .fin__label{max-width:9em;text-align:center}.stage--finance .courses li{padding:12px 14px}}
 /* Technology: a fanned deck of real product screens */
@@ -1062,7 +1062,7 @@ a.family__brand:active{transform:scale(.98)}
 .family__brandgo svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 a.family__brand:hover .family__brandgo{color:#0A0A0A;background:var(--tint);transform:rotate(45deg)}
 @media (max-width:1000px){.family__links{grid-template-columns:repeat(2,minmax(0,1fr))}.family__multi{grid-column:1/-1}.family__link.family__link--multi{min-height:0}
-  .family__brands{grid-template-columns:repeat(3,minmax(0,1fr));column-gap:16px}.family__brands li+li{border-top:0}}
+  .family__brands{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px}.family__brands li+li{border-top:0}}
 @media (max-width:560px){.family__link.family__link--multi{padding:16px 2px 8px 16px}.family__brands{grid-template-columns:minmax(0,1fr)}.family__brands li+li{border-top:1px solid var(--separator)}}
 @media (max-width:560px){.family__link{min-height:0;padding:16px 42px 16px 16px;border-radius:var(--r-sm)}.family__arrow{top:12px;right:10px}}
 @media (prefers-reduced-motion:reduce){.family__brandgo{transition:color .3s,background-color .3s}a.family__brand:hover .family__brandgo{transform:none}.family__link,.family__arrow{transition:background-color .3s,color .3s}.family__link:hover{transform:none}.family__link:hover .family__arrow{transform:none}}
