@@ -269,7 +269,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:100;op
 .tile:hover::before{opacity:1}
 .tile--media{grid-column:span 4;flex-direction:row}
 .tile--music{grid-column:span 2}
-.tile--capital{grid-column:span 2}
+.tile--finance{grid-column:span 2}
 .tile--tech{grid-column:span 4;flex-direction:row}
 .tile__copy{position:relative;z-index:2;padding:var(--pad);display:flex;flex-direction:column;gap:12px;flex:1 1 50%;min-width:0}
 .tile__copy p{color:var(--label-2);max-width:26em}
@@ -388,7 +388,7 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
   .nav__bar{padding:0 8px 0 var(--s3)}
   .nav.is-min .nav__bar{max-width:var(--max)}
   .tile--media,.tile--tech{grid-column:span 6}
-  .tile--music,.tile--capital{grid-column:span 3}
+  .tile--music,.tile--finance{grid-column:span 3}
   .mark__grid{grid-template-columns:1fr}
   .mark__visual{position:relative;top:0;max-width:340px;width:70%;margin:0 auto}
   .footer__top{grid-template-columns:1fr}
@@ -399,7 +399,7 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
   .nav__logo{width:148px}
   .tile{min-height:0}
   .tile--media,.tile--tech{flex-direction:column}
-  .tile--music,.tile--capital{grid-column:span 6}
+  .tile--music,.tile--finance{grid-column:span 6}
   .section__head--row{grid-template-columns:1fr}
   .rail-ctrl{display:none}
   .rail{gap:var(--s2)}
@@ -956,6 +956,41 @@ a.link:hover svg,.card--more:hover .link svg{transform:translate(2px,-2px)}
 .courses b{font-family:var(--cond);font-weight:600;font-size:clamp(1.1rem,1.6vw,1.45rem);letter-spacing:.08em;text-transform:uppercase}
 .courses small{font-family:var(--cond);font-weight:500;font-size:var(--t-caption);letter-spacing:.2em;text-transform:uppercase;color:var(--label-3)}
 .courses__foot{margin:0 0 0 12%;font-family:var(--serif);font-style:italic;font-size:clamp(1.1rem,1.6vw,1.4rem);color:var(--label-2)}
+/* An area with several companies (Finance): one row per brand, leading to its site; what's coming is shown, not linked */
+.tile__brands{list-style:none;margin:6px 0 0;padding:0;border-top:1px solid var(--separator)}
+.tile__brands li{border-bottom:1px solid var(--separator)}
+.brandrow{position:relative;overflow:hidden;display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:14px;min-height:60px;padding:10px 8px;
+  border-radius:var(--r-sm);color:var(--label);transition:background-color .3s,transform var(--dur-press) var(--ease-out)}
+a.brandrow:hover{background:var(--fill)}
+a.brandrow:active{transform:scale(.985)}
+.brandrow__mark{width:32px;height:32px}
+.brandrow__mark--app{border-radius:8px}
+.brandrow__text{display:grid;gap:2px;min-width:0}
+.brandrow b{display:flex;align-items:center;gap:10px;font-family:var(--cond);font-weight:600;font-size:1.05rem;letter-spacing:.1em;text-transform:uppercase}
+.brandrow small{font-size:var(--t-footnote);line-height:1.35;color:var(--label-2)}
+.brandrow .badge{padding:2px 8px;font-size:.62rem;background:var(--fill);border-color:var(--separator)}
+.brandrow__go{width:12px;height:12px;margin-right:6px;fill:none;stroke:var(--tint-text);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform var(--dur-ui) var(--spring)}
+a.brandrow:hover .brandrow__go{transform:translate(2px,-2px)}
+.brandrow--soon .brandrow__mark{opacity:.4}
+.brandrow--soon small{color:var(--label-3);font-family:var(--cond);font-weight:500;letter-spacing:.2em;text-transform:uppercase;font-size:var(--t-caption)}
+.tile__theme{margin:0 0 12px!important;padding:0!important}
+/* Finance: Capital's free courses beside Ivra's payroll screen, then what's coming (Capital never shows a chart or returns) */
+.stage--finance{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:clamp(14px,2vw,24px);padding:clamp(20px,5%,44px)}
+.fin__label{display:block;font-family:var(--cond);font-weight:600;font-size:var(--t-caption);letter-spacing:.22em;text-transform:uppercase;color:var(--label-3)}
+.fin__capital{align-self:center;display:grid;gap:12px;min-width:0}
+.stage--finance .courses li{grid-template-columns:auto 1fr}
+.stage--finance .courses li:nth-child(n){margin-left:0}
+.fin__ivra{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:0}
+.fin__phone{height:clamp(220px,30vw,340px);width:auto;aspect-ratio:640/1385;max-width:100%;border-radius:22px}
+.chapters-on .fin__phone{height:min(calc(min(100vh - 210px,720px) - 236px),420px)}
+.fin__soon{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0;padding:12px 18px;border-radius:var(--cap);border:1px dashed var(--label-4)}
+.fin__soon b{font-family:var(--cond);font-weight:600;font-size:var(--t-footnote);letter-spacing:.16em;text-transform:uppercase;color:var(--label-2)}
+.fin__soon small{font-family:var(--cond);font-weight:500;font-size:var(--t-caption);letter-spacing:.2em;text-transform:uppercase;color:var(--label-3)}
+/* short windows: chapters keep every line of Finance and Education inside the card */
+@media (max-height:800px){.chapters-on .brandrow{min-height:48px;padding-block:4px}}
+.chapters-on .tile__theme{display:none}   /* the index bar above already names the area */
+@media (max-width:860px){.stage.stage--finance{aspect-ratio:auto}}
+@media (max-width:560px){.stage--finance{grid-template-columns:minmax(0,1fr) auto}.fin__phone{height:210px}.fin__ivra .fin__label{max-width:9em;text-align:center}.stage--finance .courses li{padding:12px 14px}}
 /* Technology: a fanned deck of real product screens */
 .stage--tech .shot{position:absolute;aspect-ratio:16/10;height:auto;transition:transform 1s var(--spring)}
 .stage--tech .shot--d1{width:54%;left:4%;top:9%;transform:rotate(-4deg);filter:brightness(.82)}

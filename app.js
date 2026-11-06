@@ -264,7 +264,7 @@
   });
 
   /* ---- press feedback, app-wide from one place: a ripple from the touch point plus the capsule's own dip ---- */
-  const PRESSABLE = '.btn, .iconbtn, .theme-btn, .seg button, .nav__links a, .menu a, .pcard__link, .nowlive, .chapters__index button, .totop, .proof, .family__link, .footer__social a';
+  const PRESSABLE = '.btn, .iconbtn, .theme-btn, .seg button, .nav__links a, .menu a, .pcard__link, .nowlive, .chapters__index button, .totop, .proof, .family__link, .footer__social a, .brandrow[href]';
   document.addEventListener('pointerdown', e => {
     const el = e.target.closest(PRESSABLE);
     if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true') return;
